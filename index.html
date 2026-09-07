@@ -1,0 +1,2685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignacio — Plataforma de Estudio</title>
+<style>
+  :root{
+    --ink:#1b2a2e; --paper:#ffffff; --line:#c9c2b0;
+    --good:#2f7a4f; --bad:#b8433a; --gold:#9c5a1d;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#e9e5d8;font-family:'Trebuchet MS',sans-serif;color:var(--ink);padding:20px 12px 60px;}
+  .wrap{max-width:880px;margin:0 auto;}
+  header.top{background:var(--ink);color:#fff;border-radius:12px;padding:18px 24px;margin-bottom:16px;transition:background .2s;}
+  header.top h1{margin:0;font-size:20px;}
+  header.top p{margin:4px 0 0;font-size:13px;opacity:.85;}
+  .back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-weight:800;font-size:13px;padding:6px 14px;border-radius:20px;cursor:pointer;margin-bottom:10px;font-family:inherit;}
+  .back-btn:hover{background:rgba(255,255,255,.28);}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .tab-btn{flex:1;min-width:110px;padding:12px;border-radius:10px;border:2px solid var(--ink);background:#fff;font-weight:800;font-size:14px;cursor:pointer;color:var(--ink);font-family:inherit;}
+  .tab-btn.active{background:var(--ink);color:#fff;}
+  .panel{display:none;background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,.1);padding:24px;}
+  .panel.active{display:block;}
+
+  .topic{border:1.5px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px;background:#faf8f0;}
+  .topic h2{margin:0 0 8px;font-size:17px;}
+  .topic h3{margin:14px 0 4px;font-size:14.5px;color:var(--gold);}
+  .topic p, .topic li{font-size:14.5px;line-height:1.6;}
+  .topic ul,.topic ol{margin:4px 0;padding-left:20px;}
+  .pill{display:inline-block;color:#fff;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;margin:2px 4px 2px 0;}
+  table.tbl{width:100%;border-collapse:collapse;margin:8px 0;font-size:13.5px;}
+  table.tbl th, table.tbl td{border:1px solid var(--line);padding:6px 8px;text-align:center;}
+  table.tbl th{background:#f0ecdd;}
+
+  .qz{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+  .qz .qtext{font-weight:700;margin-bottom:8px;font-size:14.5px;}
+  .opt{display:block;width:100%;text-align:left;padding:9px 12px;margin-bottom:6px;border-radius:8px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:14px;font-family:inherit;}
+  .opt.correct{background:#e4f5e9;border-color:var(--good);}
+  .opt.wrong{background:#fbe7e5;border-color:var(--bad);}
+  .fb{font-size:13px;margin-top:6px;font-weight:700;}
+  .fb.good{color:var(--good);}
+  .fb.bad{color:var(--bad);}
+  .hint{font-size:13.5px;color:#555;}
+
+  .score-box{background:#f4f2ea;border:2px solid var(--gold);border-radius:10px;padding:10px 16px;font-weight:800;margin-bottom:14px;text-align:center;}
+
+  .sheet-field{display:flex;gap:8px;margin-bottom:6px;font-size:13.5px;}
+  .sheet-field label{font-weight:700;min-width:60px;}
+  .sheet-field input{flex:1;border:none;border-bottom:1.3px dotted var(--ink);background:transparent;font-family:inherit;padding:2px 4px;}
+  .fill-line{border:none;border-bottom:1.5px solid var(--ink);font-family:inherit;font-size:14.5px;background:transparent;padding:2px 6px;min-width:200px;}
+  .exam-actions{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap;}
+  .exam-actions button{font-weight:800;padding:10px 22px;border-radius:30px;border:2px solid var(--ink);background:#fff;cursor:pointer;font-family:inherit;}
+  .exam-actions button.primary{background:var(--ink);color:#fff;}
+  .answer-key{display:none;background:#f1eefc;border:2px solid #5b4b8a;border-radius:10px;padding:16px 20px;margin-top:16px;font-size:13.5px;line-height:1.7;}
+  .answer-key.show{display:block;}
+  select{font-family:inherit;padding:6px 10px;border-radius:6px;border:1.5px solid var(--line);}
+
+  /* HOME */
+  .home-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+  .subj-card{background:#fff;border:1.5px solid var(--line);border-top:6px solid #888;border-radius:12px;padding:16px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .12s;}
+  .subj-card:hover{transform:translateY(-3px);}
+  .subj-card .se{font-size:26px;}
+  .subj-card .sn{font-weight:800;font-size:15px;margin:6px 0 4px;}
+  .subj-card .st{font-size:12px;color:#666;min-height:32px;}
+  .subj-card .sb{display:inline-block;margin-top:8px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;}
+  .subj-card.proximamente{opacity:.55;cursor:default;border-top-color:#bbb;}
+  .subj-card.proximamente:hover{transform:none;}
+  .subj-card.linkout .sb{background:#eee;color:#555;}
+
+  /* CALIGRAFIA */
+  .dictado-card{border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#faf8f0;}
+  .dictado-card .txt{font-size:17px;margin:8px 0;}
+  .btn-sm{font-weight:800;padding:8px 14px;border-radius:8px;border:1.5px solid var(--ink);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;margin-right:8px;}
+  .btn-sm.primary{background:var(--ink);color:#fff;}
+
+  /* VOCAB / SENTENCE INTERACTIVE (Reading) */
+  .vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:10px;}
+  .vocab-card{background:#fff;border:1.5px solid var(--line);border-left:4px solid #2471a3;border-radius:10px;padding:12px 14px;cursor:pointer;position:relative;transition:transform .12s,box-shadow .12s;}
+  .vocab-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(0,0,0,.08);}
+  .vocab-card.playing{border-color:var(--good);box-shadow:0 0 0 2px rgba(47,122,79,.25);}
+  .vocab-card .vicon{position:absolute;top:10px;right:10px;font-size:17px;opacity:.6;}
+  .vocab-card .ven{font-weight:800;font-size:15px;margin-bottom:2px;padding-right:24px;}
+  .vocab-card .ves{font-size:12.5px;color:#666;font-style:italic;margin-bottom:6px;}
+  .vocab-card .vex{background:#f2f5f8;border-left:3px solid var(--line);border-radius:0 6px 6px 0;padding:6px 9px;font-size:12.5px;line-height:1.4;}
+  .vocab-card .vnote{font-size:11.5px;color:#7a7a72;margin-top:4px;line-height:1.4;}
+
+  .sentence-item{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;}
+  .sentence-item:hover{box-shadow:0 6px 14px rgba(0,0,0,.06);}
+  .sentence-item .stxt{font-size:15px;line-height:1.4;}
+  .sentence-item .sesp{display:block;font-size:12.5px;color:#7a7a72;font-style:italic;margin-top:3px;}
+  .play-btn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:none;background:var(--ink);color:#fff;font-size:15px;cursor:pointer;}
+
+  .oral-card{background:#fff;border:2px solid #2471a3;border-radius:12px;padding:24px;max-width:480px;margin:10px auto;text-align:center;}
+  .oral-word{font-weight:800;font-size:24px;margin-bottom:4px;color:#2471a3;}
+  .oral-hint{color:#7a7a72;font-size:12.5px;margin-bottom:14px;}
+  .oral-btnrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:12px;}
+  .oral-btnrow button{font-weight:700;padding:9px 14px;border-radius:8px;border:2px solid var(--ink);background:#fff;cursor:pointer;font-family:inherit;font-size:13px;}
+  .oral-btnrow button.primary{background:var(--ink);color:#fff;}
+  .oral-reveal{font-size:14px;color:var(--good);font-weight:700;min-height:20px;}
+  .oral-progress{font-size:12.5px;color:#7a7a72;margin-top:4px;}
+
+  .rate-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:13px;}
+  .rate-row select{font-family:inherit;padding:4px 8px;border-radius:6px;border:1.5px solid var(--line);}
+
+  /* Rich exam parts (Speaking-style) */
+  .exam-part{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:18px;}
+  .exam-part-label{font-weight:800;font-size:14px;color:#3f356a;background:#f1eefc;display:inline-block;padding:3px 10px;border-radius:6px;margin-bottom:10px;}
+  .exam-q-text{font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+  .mini-play{flex-shrink:0;width:30px;height:30px;border-radius:50%;border:none;background:#5b4b8a;color:#fff;font-size:13px;cursor:pointer;}
+  .exam-options{display:flex;gap:10px;flex-wrap:wrap;margin-left:38px;}
+  .exam-options button{font-size:13.5px;padding:7px 12px;border-radius:6px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;}
+  .exam-options button.correct{background:#e2f2e6;border-color:var(--good);color:var(--good);font-weight:700;}
+  .exam-options button.incorrect{background:#fbe6e4;border-color:var(--bad);color:var(--bad);}
+  .exam-fill-input{margin-left:38px;font-size:14px;padding:6px 10px;border-radius:6px;border:1.5px solid var(--line);width:220px;font-family:inherit;}
+  .exam-check-btn{margin-left:8px;font-weight:700;font-size:13px;padding:6px 12px;border-radius:6px;border:none;background:#5b4b8a;color:#fff;cursor:pointer;font-family:inherit;}
+  .exam-feedback{margin-left:38px;margin-top:6px;font-size:13px;font-weight:700;min-height:18px;}
+  .exam-feedback.good{color:var(--good);}
+  .exam-feedback.bad{color:var(--bad);}
+  .exam-passage{background:#faf8f2;border-left:4px solid #5b4b8a;padding:12px 16px;font-size:14.5px;line-height:1.6;margin-bottom:14px;border-radius:0 6px 6px 0;}
+  .exam-q{margin-bottom:16px;}
+
+  /* MATCHING GAME */
+  .match-wrap{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+  .match-col{display:flex;flex-direction:column;gap:8px;min-width:180px;}
+  .match-btn{padding:9px 12px;border-radius:8px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;text-align:left;}
+  .match-btn.selected{border-color:#5b4b8a;background:#f1eefc;}
+  .match-btn.correct{border-color:var(--good);background:#e4f5e9;cursor:default;}
+  .match-btn.wrong{border-color:var(--bad);background:#fbe7e5;}
+  .match-status{text-align:center;font-size:13px;font-weight:700;margin-top:8px;min-height:18px;}
+
+  /* CARTESIAN GRID */
+  .gridwrap{display:inline-block;border:2px solid var(--ink);border-radius:8px;overflow:hidden;margin:10px 0;}
+  .grow{display:flex;}
+  .gcell{width:34px;height:34px;border:1px solid #ddd6c4;display:flex;align-items:center;justify-content:center;font-size:9px;color:#999;cursor:pointer;background:#fff;}
+  .gcell:hover{background:#eef3f8;}
+  .gcell.axis0{background:#f0ecdd;font-weight:800;color:var(--ink);}
+  .gcell.hit{background:#e4f5e9;border-color:var(--good);color:var(--good);font-weight:800;}
+  .gcell.miss{background:#fbe7e5;border-color:var(--bad);}
+  .grid-status{font-size:13.5px;font-weight:700;margin-top:8px;min-height:18px;}
+  .grid-target{font-size:14px;margin-bottom:6px;font-weight:700;color:#6a3aa8;}
+  .qicon{display:inline-block;margin-right:6px;font-size:15px;}
+  .say-btn{background:#c2185b12;border:1px solid #c2185b55;color:#c2185b;border-radius:6px;padding:1px 7px;font-size:12px;cursor:pointer;vertical-align:middle;margin-left:2px;}
+  .say-btn:hover{background:#c2185b22;}
+  .say-btn:active{transform:scale(.94);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top" id="appHeader">
+    <button class="back-btn" id="backBtn" style="display:none" onclick="goHome()">← Inicio</button>
+    <h1 id="headerTitle">🎓 Ignacio — Plataforma de Estudio</h1>
+    <p id="headerSubtitle">Colegio Bilingüe Holandes · Cuarto Primaria · III Bimestre</p>
+  </header>
+
+  <div id="homeView">
+    <div class="home-grid" id="homeGrid"></div>
+  </div>
+
+  <div id="subjectView" style="display:none">
+    <div class="tabs" id="subjectTabs">
+      <button class="tab-btn active" data-tab="aprende">📘 Aprende</button>
+      <button class="tab-btn" data-tab="practica">✏️ Practica</button>
+      <button class="tab-btn" data-tab="cuestionario">📋 Cuestionario</button>
+      <button class="tab-btn" data-tab="examen">📝 Examen simulado</button>
+    </div>
+    <div class="panel active" id="aprende"><div id="topicsContainer"></div></div>
+    <div class="panel" id="practica">
+      <p class="hint">Responde y recibe retroalimentación inmediata. Puedes repetir cuantas veces quieras.</p>
+      <div id="practiceQuiz"></div>
+    </div>
+    <div class="panel" id="cuestionario">
+      <p class="hint">Pregunta y respuesta seguidas — ideal para repasar en voz alta con papá/mamá antes del examen.</p>
+      <div id="cuestionarioList"></div>
+    </div>
+    <div class="panel" id="examen">
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+        <label>Variante: <select id="variantSelect"></select></label>
+        <span class="hint">Cada variante toma preguntas al azar — ¡es diferente cada vez!</span>
+      </div>
+      <div class="score-box" id="examHeader"></div>
+      <div class="sheet-field"><label>Nombre:</label><input placeholder="Camey Melendez, Ignacio Javier"></div>
+      <div class="sheet-field"><label>Fecha:</label><input placeholder="___/___/2026"></div>
+      <div id="examBody"></div>
+      <div class="exam-actions">
+        <button class="primary" id="checkExam">✅ Revisar mis respuestas</button>
+        <button id="resetExam">🔄 Nuevo intento</button>
+      </div>
+      <div class="answer-key" id="examKey"></div>
+    </div>
+  </div>
+
+  <div id="calView" style="display:none">
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="calCopiado" onclick="calTab('calCopiado',this)">📝 Copiado</button>
+      <button class="tab-btn" data-tab="calDictado" onclick="calTab('calDictado',this)">🔊 Dictado</button>
+    </div>
+    <div class="panel active" id="calCopiado">
+      <div class="topic">
+        <h2 style="color:#b1560c">Copia cada oración con letra cursiva clara</h2>
+        <p>Cuida mayúsculas, tildes y signos de puntuación.</p>
+      </div>
+      <div id="calCopiadoList"></div>
+    </div>
+    <div class="panel" id="calDictado">
+      <div class="topic">
+        <h2 style="color:#b1560c">Dictado — escucha y escribe</h2>
+        <p>Presiona ▶ para escuchar. Escribe en tu cuaderno y luego toca "Mostrar" para revisar.</p>
+      </div>
+      <div id="calDictadoList"></div>
+    </div>
+  </div>
+
+  <div id="reaView" style="display:none">
+    <div class="tabs" id="reaTabs">
+      <button class="tab-btn active" data-rtab="reaVocab">🔤 Vocabulario</button>
+      <button class="tab-btn" data-rtab="reaSent">💬 Frases</button>
+      <button class="tab-btn" data-rtab="reaQuiz">🎯 Quiz oral</button>
+      <button class="tab-btn" data-rtab="reaExam">📝 Examen simulado</button>
+    </div>
+    <div class="panel active" id="reaVocab">
+      <p class="hint">Toca la tarjeta o el botón 🔊 para escuchar la pronunciación en inglés.</p>
+      <div class="rate-row">
+        <label>🔊 Velocidad:
+          <select id="reaRate">
+            <option value="0.7">Lenta</option>
+            <option value="0.85" selected>Normal</option>
+            <option value="1">Rápida</option>
+          </select>
+        </label>
+      </div>
+      <div class="vocab-grid" id="reaVocabGrid"></div>
+    </div>
+    <div class="panel" id="reaSent">
+      <p class="hint">Lee la oración en <b>español</b> y dila completa en <b>inglés</b> en voz alta. Luego toca la tarjeta para revisar y escuchar la oración correcta.</p>
+      <div id="reaSentList"></div>
+    </div>
+    <div class="panel" id="reaQuiz">
+      <p class="hint" style="text-align:center;">Aparece la palabra en <b>español</b>. Dila en voz alta en <b>inglés</b> antes de tocar "Ver respuesta" — así practicas produciendo el idioma, no solo reconociéndolo.</p>
+      <div class="oral-card">
+        <div class="oral-hint">Unit <span id="reaQuizUnit">—</span> · di esta palabra en inglés</div>
+        <div class="oral-word" id="reaQuizWord" style="color:#2471a3;">—</div>
+        <div class="oral-btnrow">
+          <button class="primary" id="reaQuizReveal">✅ Ver respuesta</button>
+          <button id="reaQuizPlay" disabled>🔊 Escuchar otra vez</button>
+          <button id="reaQuizNext">Siguiente ➜</button>
+        </div>
+        <div class="oral-reveal" id="reaQuizRevealTxt"></div>
+        <div class="oral-progress" id="reaQuizProgress"></div>
+      </div>
+    </div>
+    <div class="panel" id="reaExam">
+      <p class="hint">Examen completo (5 partes), igual formato que usa el colegio. Escucha el audio antes de responder. Cada intento trae preguntas distintas — hazlo al final de tu sesión de estudio.</p>
+      <div id="reaExamContainer"></div>
+      <div class="score-box" id="reaExamScoreBar" style="display:none"></div>
+      <div class="exam-actions">
+        <button class="primary" id="reaExamCheckAll" style="background:#5b4b8a;border-color:#5b4b8a;">✅ Revisar TODO el examen</button>
+        <button id="reaExamReset">🔄 Nuevo examen</button>
+      </div>
+      <div class="answer-key" id="reaExamKey" style="display:none;background:#f1eefc;border:2px solid #5b4b8a;border-radius:10px;padding:16px 20px;margin-top:10px;font-size:13.5px;line-height:1.7;"></div>
+    </div>
+  </div>
+
+  <div id="spView" style="display:none">
+    <div class="tabs" id="spTabs">
+      <button class="tab-btn active" data-stab="spVocab">🔤 Vocabulario</button>
+      <button class="tab-btn" data-stab="spSent">💬 Frases</button>
+      <button class="tab-btn" data-stab="spQuiz">🎯 Quiz oral</button>
+      <button class="tab-btn" data-stab="spExam">📝 Examen simulado</button>
+    </div>
+    <div class="panel active" id="spVocab">
+      <p class="hint">Toca la tarjeta o el botón 🔊 para escuchar la pronunciación en inglés. Repite en voz alta.</p>
+      <div class="rate-row">
+        <label>🔊 Velocidad:
+          <select id="spRate">
+            <option value="0.7">Lenta</option>
+            <option value="0.85" selected>Normal</option>
+            <option value="1">Rápida</option>
+          </select>
+        </label>
+      </div>
+      <div class="vocab-grid" id="spVocabGrid"></div>
+    </div>
+    <div class="panel" id="spSent">
+      <p class="hint">Lee la oración en <b>español</b> y dila completa en <b>inglés</b> en voz alta. Luego toca la tarjeta para revisar y escuchar la oración correcta.</p>
+      <div id="spSentList"></div>
+    </div>
+    <div class="panel" id="spQuiz">
+      <p class="hint" style="text-align:center;">Aparece la palabra o frase en <b>español</b>. Dila en voz alta en <b>inglés</b> antes de tocar "Ver respuesta".</p>
+      <div class="oral-card">
+        <div class="oral-hint">Unit <span id="spQuizUnit">—</span> · di esto en inglés</div>
+        <div class="oral-word" id="spQuizWord" style="color:#5c6bc0;">—</div>
+        <div class="oral-btnrow">
+          <button class="primary" id="spQuizReveal">✅ Ver respuesta</button>
+          <button id="spQuizPlay" disabled>🔊 Escuchar otra vez</button>
+          <button id="spQuizNext">Siguiente ➜</button>
+        </div>
+        <div class="oral-reveal" id="spQuizRevealTxt"></div>
+        <div class="oral-progress" id="spQuizProgress"></div>
+      </div>
+    </div>
+    <div class="panel" id="spExam">
+      <p class="hint">Examen completo (6 partes), igual formato que usa el colegio: Listening, Choose the correct words, Complete the sentences, Read and answer (con "¿qué información falta?"), Write the meaning in English y Speech Frame. Escucha el audio antes de responder. Cada intento trae preguntas distintas — hazlo al final de tu sesión de estudio.</p>
+      <div id="spExamContainer"></div>
+      <div class="score-box" id="spExamScoreBar" style="display:none"></div>
+      <div class="exam-actions">
+        <button class="primary" id="spExamCheckAll" style="background:#5b4b8a;border-color:#5b4b8a;">✅ Revisar TODO el examen</button>
+        <button id="spExamReset">🔄 Nuevo examen</button>
+      </div>
+      <div class="answer-key" id="spExamKey" style="display:none;background:#f1eefc;border:2px solid #5b4b8a;border-radius:10px;padding:16px 20px;margin-top:10px;font-size:13.5px;line-height:1.7;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================================================================
+   SUBJECTS DATA (generic engine subjects) — content from Ignacio's folders
+   ====================================================================== */
+const SUBJECTS = {
+
+fc: {
+  name:"Formación Ciudadana", emoji:"💰", color:"#1f4e8c",
+  subtitle:"Lunes 7 de septiembre · Unidad 3 — Educación financiera: el dinero, el ahorro y el consumo inteligente",
+  tags:"El dinero · El ahorro · Consumo inteligente · El endeudamiento",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#1f4e8c">Educación financiera</h2>
+      <p>Vivimos en un mundo donde el dinero se utiliza para comprar bienes y contratar servicios, y también sirve para pagar los impuestos que, a su vez, sirven para mantener en funcionamiento al gobierno.</p>
+      <p><b>Educación financiera</b> es el proceso de aprender a usar el dinero de forma inteligente, de manera que alcance para cubrir nuestras necesidades y gustos. El dinero se obtiene trabajando, ya sea con un trabajo propio o como empleado. El pago que se recibe por realizar un trabajo se llama <b>sueldo</b>.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1f4e8c">Claves de la educación financiera</h2>
+      <ul>
+        <li>La mayoría de bienes y servicios se pagan con dinero. El dinero lo obtienen los adultos mediante su trabajo: se realiza un esfuerzo para obtenerlo, pues todo tiene un costo. El dinero no se regala.</li>
+        <li>Una persona solo puede gastar la cantidad de dinero de la que dispone. Si se gasta más, se acumulan deudas. Lo correcto es ahorrar una parte del dinero que se gana y no gastarlo todo, ni endeudarse.</li>
+        <li>Antes de comprar algo debemos preguntarnos: ¿realmente lo necesito? Es importante comprar de forma inteligente, analizando también la calidad de lo que se adquiere.</li>
+        <li>Con el dinero se pueden obtener muchas cosas, pero no se puede comprar todo lo que uno quisiera, porque el dinero se acaba. Eso significa que hay que elegir inteligentemente qué comprar.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1f4e8c">El ahorro</h2>
+      <p><b>Ahorrar</b> significa separar una parte del dinero que se gana, no gastarlo y guardarlo. Es el primer paso para formar un patrimonio y tener dinero de reserva. Una persona que ahorra es paciente y disciplinada, planifica su futuro.</p>
+      <p>Existen dos formas de ahorrar:</p>
+      <ul>
+        <li><b>Informal:</b> se hace en casa, por ejemplo en alcancías. El problema es que se puede gastar en cualquier momento o se puede perder. La ventaja es que se puede usar en cualquier momento.</li>
+        <li><b>Formal:</b> se lleva a cabo en bancos, a través de cuentas de ahorro. Los beneficios son que el dinero está seguro, no se tiene la tentación de gastarlo y genera intereses.</li>
+      </ul>
+      <p>Cuando se habla de <b>intereses</b> en una cuenta de ahorro, significa que el banco le paga a la persona una cantidad por tener depositado su dinero allí. Mientras más dinero se tiene ahorrado, mayor será la cantidad de intereses que la persona reciba.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1f4e8c">Ventajas del ahorro</h2>
+      <ul>
+        <li>Es una reserva para usar en acontecimientos imprevistos y emergencias (accidentes, fallecimiento de un familiar, pérdida del trabajo, problemas de salud).</li>
+        <li>Puede servir para comprar una casa, un carro o cualquier otra propiedad.</li>
+        <li>Permite invertir en educación.</li>
+        <li>Es una ayuda para iniciar un negocio o mejorarlo.</li>
+        <li>Si se planifica con suficiente tiempo, puede servir como fondo de jubilación o retiro.</li>
+      </ul>
+      <p>Las personas se endeudan porque gastan más de lo que reciben, o porque quieren algo que vale mucho dinero y no lo tienen.</p>
+    </div>
+  `,
+  bank: [
+    {q:"¿Qué es la educación financiera?", opts:["Aprender a usar el dinero de forma inteligente","Aprender a gastar todo el dinero","Aprender a pedir dinero prestado"], correct:0},
+    {q:"¿Cómo se llama el pago que se recibe por realizar un trabajo?", opts:["Sueldo","Ahorro","Interés"], correct:0},
+    {q:"¿Qué pasa si una persona gasta más dinero del que tiene?", opts:["Se endeuda","Ahorra más","Gana intereses"], correct:0},
+    {q:"Antes de comprar algo, ¿qué debemos preguntarnos?", opts:["¿Realmente lo necesito?","¿Cuánto cuesta el envío?","¿Qué color tiene?"], correct:0},
+    {q:"¿Qué significa ahorrar?", opts:["Separar una parte del dinero y no gastarlo","Gastar todo el dinero en un día","Pedir dinero prestado al banco"], correct:0},
+    {q:"El ahorro que se hace en una alcancía en casa es un ahorro...", opts:["Informal","Formal","Bancario"], correct:0},
+    {q:"El ahorro que se hace en una cuenta de banco es un ahorro...", opts:["Formal","Informal","Improvisado"], correct:0},
+    {q:"¿Cuál es la ventaja del ahorro formal (en el banco)?", opts:["El dinero está seguro y genera intereses","Se puede gastar en cualquier momento","Se puede perder fácilmente"], correct:0},
+    {q:"¿Qué es el interés bancario?", opts:["La cantidad que el banco paga por el dinero ahorrado","El impuesto que se paga al gobierno","El precio de un producto"], correct:0},
+    {q:"¿Cuál de estas es una ventaja del ahorro?", opts:["Sirve como reserva para emergencias","Hace que el dinero desaparezca","Aumenta las deudas"], correct:0},
+    {q:"¿Por qué se endeudan las personas?", opts:["Porque gastan más de lo que reciben","Porque ahorran demasiado","Porque no compran nada"], correct:0},
+    {q:"¿Qué cualidades tiene una persona que ahorra?", opts:["Es paciente y disciplinada","Es impaciente y desordenada","Gasta todo de inmediato"], correct:0},
+    {q:"El dinero se obtiene principalmente mediante...", opts:["El trabajo","Los regalos","La suerte"], correct:0},
+    {q:"Comprar de forma inteligente también significa analizar...", opts:["La calidad de lo que se adquiere","Solo el color del producto","Qué compran los amigos"], correct:0},
+    {q:"El ahorro puede servir como fondo de...", opts:["Jubilación o retiro","Gastos innecesarios","Deudas nuevas"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"El dinero se obtiene mediante el _______.", answer:"trabajo"},
+    {sentence:"El pago que se recibe por un trabajo se llama _______.", answer:"sueldo"},
+    {sentence:"_______ significa separar una parte del dinero y no gastarlo.", answer:"ahorrar"},
+    {sentence:"El ahorro que se hace en casa, como en una alcancía, es _______.", answer:"informal"},
+    {sentence:"El ahorro que se hace en el banco es _______.", answer:"formal"},
+    {sentence:"El banco paga _______ por el dinero que la persona tiene ahorrado.", answer:"intereses"},
+    {sentence:"Si una persona gasta más de lo que tiene, se _______.", answer:"endeuda"},
+    {sentence:"Antes de comprar algo hay que preguntarse si realmente se _______.", answer:"necesita"},
+  ],
+  matchPairs: [
+    {term:"Sueldo", def:"Pago que se recibe por un trabajo"},
+    {term:"Ahorro informal", def:"Se hace en casa, como en una alcancía"},
+    {term:"Ahorro formal", def:"Se hace en un banco, a través de una cuenta"},
+    {term:"Interés", def:"Cantidad que paga el banco por el dinero ahorrado"},
+    {term:"Endeudarse", def:"Gastar más dinero del que se tiene"},
+    {term:"Patrimonio", def:"Lo que se forma al ahorrar con el tiempo"},
+    {term:"Consumo inteligente", def:"Comprar solo lo necesario y de buena calidad"},
+    {term:"Educación financiera", def:"Aprender a usar el dinero de forma inteligente"},
+  ],
+  passage: {
+    title:"Sofía y su alcancía",
+    text:"Sofía tiene 10 años y cada semana recibe Q10 de propina. En lugar de gastarlo todo en dulces, decidió guardar la mitad en una alcancía. Después de dos meses, contó su dinero y tenían Q40. Con ese dinero compró un regalo de cumpleaños para su mamá, y todavía le sobró un poco para seguir ahorrando. Sofía se dio cuenta de que ahorrar un poco cada semana, sin gastarlo todo de inmediato, le permitió comprar algo importante para ella.",
+    questions: [
+      {q:"¿Cuánto dinero de propina recibe Sofía cada semana? Escribe la respuesta completa.", keyword:"10"},
+      {q:"¿Qué hizo Sofía con el dinero que ahorró? Responde con oración completa.", keyword:"regalo"},
+      {q:"¿Qué aprendió Sofía sobre ahorrar? Explica con tus propias palabras.", keyword:"ahorr"}
+    ]
+  }
+},
+
+geo: {
+  name:"Geometría", emoji:"📐", color:"#1e7d5c",
+  subtitle:"Martes 8 de septiembre · Triángulos, cuadriláteros, congruencia y traslación",
+  tags:"Triángulos · Cuadriláteros · Congruencia · Traslación",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#1e7d5c">Clasificación de los triángulos</h2>
+      <p><b>Según la longitud de sus lados:</b></p>
+      <ul>
+        <li><b>Equilátero:</b> los tres lados son iguales.</li>
+        <li><b>Isósceles:</b> dos lados iguales y uno distinto.</li>
+        <li><b>Escaleno:</b> los tres lados son diferentes.</li>
+      </ul>
+      <p><b>Según la amplitud de sus ángulos:</b></p>
+      <ul>
+        <li><b>Acutángulo:</b> tres ángulos agudos (menores de 90°).</li>
+        <li><b>Rectángulo:</b> un ángulo recto (de 90°).</li>
+        <li><b>Obtusángulo:</b> un ángulo obtuso (mayor de 90°).</li>
+      </ul>
+      <p>No existe un triángulo equilátero rectángulo ni un triángulo equilátero obtusángulo: un triángulo con los tres lados iguales siempre es acutángulo.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e7d5c">Clasificación de los cuadriláteros</h2>
+      <p><b>Paralelogramos</b> (tienen los lados opuestos paralelos):</p>
+      <ul>
+        <li><b>Cuadrado:</b> los cuatro lados de la misma longitud, todos los ángulos iguales (90°).</li>
+        <li><b>Rombo:</b> los cuatro lados de la misma longitud, ángulos iguales dos a dos.</li>
+        <li><b>Rectángulo:</b> lados opuestos de la misma longitud, todos los ángulos iguales (90°).</li>
+        <li><b>Romboide:</b> lados opuestos de la misma longitud, ángulos iguales dos a dos.</li>
+      </ul>
+      <ul>
+        <li><b>Trapecio:</b> tiene dos lados paralelos.</li>
+        <li><b>Trapezoide:</b> no tiene ningún lado paralelo.</li>
+      </ul>
+      <p><b>Los ángulos de un cuadrilátero siempre suman 360°.</b> Por ejemplo: 70°+110°+70°+110° = 360°; o 90°+90°+90°+90° = 360°.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e7d5c">Construcción de triángulos</h2>
+      <p><b>Con regla y compás (conociendo los tres lados):</b></p>
+      <ol>
+        <li>Se traza uno de los lados con la regla.</li>
+        <li>Se abre el compás con la medida de otro lado, se coloca la punta en un extremo del lado dibujado y se traza un arco.</li>
+        <li>Se repite con el lado restante desde el otro extremo, trazando un arco que corte al anterior.</li>
+        <li>Con la regla se unen los extremos del primer lado con el punto donde se cortan los arcos.</li>
+      </ol>
+      <p><b>Con transportador y regla (conociendo dos ángulos y un lado):</b></p>
+      <ol>
+        <li>Se dibuja el lado conocido con la regla.</li>
+        <li>Se coloca el centro del transportador en un extremo del lado y se marca el primer ángulo.</li>
+        <li>Con la regla se traza una línea desde ese extremo que pase por la marca.</li>
+        <li>Se coloca el transportador en el otro extremo y se marca el segundo ángulo.</li>
+        <li>Se traza una línea desde ese extremo hasta que corte la primera línea trazada.</li>
+      </ol>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e7d5c">Igualdad, congruencia y traslación</h2>
+      <p><b>Dos figuras son congruentes</b> si cada lado y cada ángulo de una se corresponde con un lado o un ángulo igual de la otra.</p>
+      <p><b>Dos figuras son iguales</b> si, además de ser congruentes, pueden hacerse coincidir sin salir del papel (por ejemplo, moviéndolas o girándolas, pero no reflejándolas). Todas las figuras iguales son también congruentes, pero no todas las congruentes son iguales (algunas son reflejos, como una mano y su imagen en el espejo).</p>
+      <p><b>Traslación:</b> para trasladar una figura basta con mover todos sus puntos la misma distancia y en la misma dirección. La figura trasladada es igual a la original, solo que cambia de posición.</p>
+    </div>
+  `,
+  bank: [
+    {q:"¿Cómo se llama el triángulo con los tres lados iguales?", opts:["Equilátero","Isósceles","Escaleno"], correct:0},
+    {q:"¿Cómo se llama el triángulo con dos lados iguales y uno distinto?", opts:["Isósceles","Equilátero","Escaleno"], correct:0},
+    {q:"¿Cómo se llama el triángulo con los tres lados diferentes?", opts:["Escaleno","Equilátero","Isósceles"], correct:0},
+    {q:"¿Cómo se llama el triángulo con sus tres ángulos agudos?", opts:["Acutángulo","Rectángulo","Obtusángulo"], correct:0},
+    {q:"¿Cómo se llama el triángulo con un ángulo de 90°?", opts:["Rectángulo","Acutángulo","Obtusángulo"], correct:0},
+    {q:"¿Cómo se llama el triángulo con un ángulo mayor de 90°?", opts:["Obtusángulo","Acutángulo","Rectángulo"], correct:0},
+    {q:"¿Cuánto suman los ángulos de un cuadrilátero?", opts:["360°","180°","90°"], correct:0},
+    {q:"¿Qué figura tiene los cuatro lados iguales y todos los ángulos de 90°?", opts:["Cuadrado","Rombo","Trapecio"], correct:0},
+    {q:"¿Qué figura tiene los cuatro lados iguales pero sus ángulos son iguales dos a dos?", opts:["Rombo","Cuadrado","Rectángulo"], correct:0},
+    {q:"¿Qué figura tiene lados opuestos paralelos y de la misma longitud, con ángulos iguales dos a dos?", opts:["Romboide","Cuadrado","Trapezoide"], correct:0},
+    {q:"¿Qué cuadrilátero tiene solo dos lados paralelos?", opts:["Trapecio","Trapezoide","Rombo"], correct:0},
+    {q:"¿Qué cuadrilátero no tiene ningún lado paralelo?", opts:["Trapezoide","Trapecio","Rectángulo"], correct:0},
+    {q:"¿Qué instrumentos se usan para construir un triángulo conociendo sus tres lados?", opts:["Regla y compás","Solo una regla","Calculadora"], correct:0},
+    {q:"Dos figuras son congruentes cuando...", opts:["Cada lado y ángulo se corresponde con uno igual de la otra","Tienen distinto tamaño","Tienen distinta forma"], correct:0},
+    {q:"Dos figuras son iguales cuando...", opts:["Además de congruentes, pueden coincidir sin salir del papel","Solo tienen el mismo color","Tienen ángulos distintos"], correct:0},
+    {q:"¿Qué significa trasladar una figura?", opts:["Mover todos sus puntos la misma distancia y dirección","Cambiar su tamaño","Cambiar su color"], correct:0},
+    {q:"Una figura trasladada, respecto a la original, es...", opts:["Igual, solo cambia de posición","Más grande","Más pequeña"], correct:0},
+    {q:"¿Todas las figuras iguales son también congruentes?", opts:["Sí, siempre","No, nunca","Solo a veces"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"El polígono regular de tres lados se llama _______.", answer:"triangulo"},
+    {sentence:"El polígono regular de cuatro lados se llama _______.", answer:"cuadrado"},
+    {sentence:"Un triángulo con los tres lados iguales es _______.", answer:"equilatero"},
+    {sentence:"Un triángulo con un ángulo recto es _______.", answer:"rectangulo"},
+    {sentence:"Los ángulos de un cuadrilátero siempre suman _______ grados.", answer:"360"},
+    {sentence:"Un cuadrilátero con solo dos lados paralelos es un _______.", answer:"trapecio"},
+    {sentence:"Un cuadrilátero sin lados paralelos es un _______.", answer:"trapezoide"},
+    {sentence:"Dos figuras que pueden coincidir sin salir del papel son _______.", answer:"iguales"},
+    {sentence:"Mover una figura la misma distancia y dirección se llama _______.", answer:"traslacion"},
+    {sentence:"Los instrumentos para construir un triángulo con dos ángulos y un lado son la regla y el _______.", answer:"transportador"},
+  ],
+  matchPairs: [
+    {term:"Triángulo equilátero", def:"Tres lados iguales"},
+    {term:"Triángulo isósceles", def:"Dos lados iguales, uno distinto"},
+    {term:"Triángulo escaleno", def:"Tres lados diferentes"},
+    {term:"Triángulo acutángulo", def:"Tres ángulos agudos"},
+    {term:"Triángulo obtusángulo", def:"Un ángulo mayor de 90°"},
+    {term:"Cuadrado", def:"Cuatro lados iguales y ángulos de 90°"},
+    {term:"Rombo", def:"Cuatro lados iguales, ángulos iguales dos a dos"},
+    {term:"Trapecio", def:"Dos lados paralelos"},
+    {term:"Figuras congruentes", def:"Lados y ángulos correspondientes iguales"},
+    {term:"Traslación", def:"Mover una figura la misma distancia y dirección"},
+  ],
+  passage: {
+    title:"Las formas que nos rodean",
+    text:"Cuando Diego caminaba hacia la escuela, se dio cuenta de que las formas geométricas están en todas partes. La señal de tránsito de \"ceda el paso\" era un triángulo. La ventana de su casa era un rectángulo. El techo de la iglesia del pueblo tenía forma de rombo. En clase, su maestra le explicó que reconocer estas figuras y saber sus propiedades ayuda a los arquitectos e ingenieros a construir edificios seguros, porque cada figura tiene características que la hacen más o menos resistente.",
+    questions: [
+      {q:"¿Qué forma tenía la señal de \"ceda el paso\" que vio Diego? Responde con oración completa.", keyword:"triangul"},
+      {q:"¿Para qué sirve reconocer las figuras geométricas, según la maestra?", keyword:"construir"},
+      {q:"Menciona con tus palabras un ejemplo de figura geométrica que veas tú en tu casa o escuela.", keyword:""}
+    ]
+  }
+},
+
+comp: {
+  name:"Computación", emoji:"🧲", color:"#6a3aa8",
+  subtitle:"Lunes 7 de septiembre · Unidad 6 — Magnetismo y programación condicional",
+  tags:"Magnetismo · Imanes · Condicional si/entonces · Operador lógico o · Sensores en Scratch",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#6a3aa8">¿Qué es el magnetismo?</h2>
+      <p>El <b>magnetismo</b> es una fuerza especial que hace que algunos objetos se atraigan o se peguen sin necesidad de tocarlos. Esta fuerza funciona especialmente con ciertos metales, como el hierro. Aunque no podemos ver el magnetismo, podemos experimentar cómo funciona, sobre todo cuando un imán atrae objetos hacia él. La Tierra es como un gran imán, y por eso las brújulas siempre apuntan al norte.</p>
+      <p>Un <b>imán</b> es un objeto que puede atraer ciertos metales, como el hierro y el níquel. Los imanes tienen dos partes llamadas <b>polos</b>: uno es el polo positivo y el otro el polo negativo. Cuando acercas dos imanes: si juntas polos diferentes (positivo y negativo), los imanes se atraen y se pegan; si intentas juntar polos iguales, los imanes se empujan.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#6a3aa8">Tipos de imanes</h2>
+      <ul>
+        <li><b>Imanes naturales:</b> se encuentran en la naturaleza, como la piedra llamada magnetita.</li>
+        <li><b>Imanes artificiales:</b> no existen en la naturaleza, fueron creados por el ser humano (por ejemplo, los imanes de refrigerador).</li>
+        <li><b>Electroimanes:</b> solo se convierten en imán cuando reciben electricidad. Son muy fuertes y se usan para levantar objetos pesados de metal o en los trenes bala.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#6a3aa8">El condicional "si entonces si no"</h2>
+      <p>Este condicional permite a la computadora o a un robot tomar decisiones entre dos posibles opciones. De esa manera, la computadora sabe qué hacer en cada situación si esta presenta más de una condición.</p>
+      <p><b>Ejemplo:</b> "Si presionas el botón A, entonces se muestra una carita feliz; si no presionas nada, se muestra una carita triste".</p>
+      <p>Todos los días aplicamos el condicional "si entonces si no" al tomar decisiones. Por ejemplo: "Si" tienes examen, "entonces" estudias; "si no", puedes jugar.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#6a3aa8">El operador lógico "o"</h2>
+      <p>El operador lógico "o" en programación permite tomar decisiones cuando se presentan varias opciones posibles. Funciona evaluando si al menos una de las condiciones es verdadera cuando se cumple una condición para realizar una acción específica.</p>
+      <p><b>Ejemplo:</b> "Si presionas el botón A o el botón B, la computadora mostrará un corazón". Aquí no importa qué botón se presione, ya que cualquiera de las dos acciones hará que aparezca el corazón. Este operador es muy útil porque permite a las computadoras responder a diferentes situaciones de manera flexible.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#6a3aa8">Sensores en Scratch</h2>
+      <p>En Scratch existen bloques que permiten que un objeto (sprite) "detecte" colores u objetos en el escenario:</p>
+      <ul>
+        <li><b>¿Está tocando el color...?</b> pregunta si el sprite está en contacto con un color específico del escenario.</li>
+        <li><b>¿Un color está tocando otro color?</b> pregunta si un color específico del propio sprite toca otro color del escenario.</li>
+        <li><b>¿Tocando el puntero del ratón?</b> verifica si el puntero del ratón está tocando el sprite; es útil para crear juegos interactivos.</li>
+      </ul>
+      <p>Estos bloques se combinan con el bloque condicional "si entonces" para desencadenar una acción cuando se cumple la condición (por ejemplo, que el sprite diga un mensaje).</p>
+    </div>
+  `,
+  bank: [
+    {q:"¿Qué es el magnetismo?", opts:["Una fuerza que atrae ciertos objetos sin tocarlos","Un tipo de electricidad visible","Un color especial"], correct:0},
+    {q:"¿Qué es un imán?", opts:["Un objeto que atrae ciertos metales","Un objeto que repele todo","Una fuente de luz"], correct:0},
+    {q:"¿Cómo se llaman las dos partes de un imán?", opts:["Polos","Bordes","Caras"], correct:0},
+    {q:"¿Qué sucede si juntas dos polos iguales?", opts:["Se empujan","Se atraen","No pasa nada"], correct:0},
+    {q:"¿Qué sucede si juntas dos polos diferentes?", opts:["Se atraen","Se empujan","Desaparecen"], correct:0},
+    {q:"¿Cómo se llama la piedra que es un imán natural?", opts:["Magnetita","Granito","Cuarzo"], correct:0},
+    {q:"Un imán que solo funciona cuando recibe electricidad es un...", opts:["Electroimán","Imán natural","Imán artificial"], correct:0},
+    {q:"¿Qué permite hacer el condicional 'si entonces si no'?", opts:["Tomar decisiones entre dos opciones","Sumar números","Dibujar figuras"], correct:0},
+    {q:"En 'si tienes examen, entonces estudias, si no, puedes jugar', ¿qué es la condición?", opts:["Tener examen","Jugar","Estudiar"], correct:0},
+    {q:"¿Qué hace el operador lógico 'o' en programación?", opts:["Permite que se cumpla al menos una de varias condiciones","Obliga a que se cumplan todas las condiciones","Borra el programa"], correct:0},
+    {q:"'Si presionas el botón A o el botón B, aparece un corazón': ¿qué botón hace que aparezca?", opts:["Cualquiera de los dos","Solo el botón A","Ninguno"], correct:0},
+    {q:"¿Qué hace el bloque '¿está tocando el color...?' en Scratch?", opts:["Pregunta si el sprite toca un color específico","Cambia el fondo","Mueve el sprite"], correct:0},
+    {q:"¿Qué hace el bloque '¿tocando el puntero del ratón?'", opts:["Verifica si el ratón toca al sprite","Cambia el color del sprite","Detiene el programa"], correct:0},
+    {q:"¿Qué indica la coordenada X en el plano cartesiano?", opts:["Si algo está a la derecha o a la izquierda","Si algo está arriba o abajo","El color de un punto"], correct:0},
+    {q:"¿Qué indica la coordenada Y en el plano cartesiano?", opts:["Si algo está arriba o abajo","Si algo está a la derecha o a la izquierda","El tamaño de un punto"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"El _______ es una fuerza que atrae ciertos objetos sin tocarlos.", answer:"magnetismo"},
+    {sentence:"Las dos partes de un imán se llaman _______.", answer:"polos"},
+    {sentence:"Polos iguales se _______ entre sí.", answer:"empujan"},
+    {sentence:"Polos diferentes se _______ entre sí.", answer:"atraen"},
+    {sentence:"Un imán que existe en la naturaleza se llama imán _______.", answer:"natural"},
+    {sentence:"Un imán que funciona solo con electricidad se llama _______.", answer:"electroiman"},
+    {sentence:"El condicional 'si entonces si no' permite tomar _______ entre dos opciones.", answer:"decisiones"},
+    {sentence:"El operador lógico _______ se cumple si al menos una condición es verdadera.", answer:"o"},
+    {sentence:"En Scratch, el bloque que verifica si el ratón toca al sprite se llama tocando el _______ del ratón.", answer:"puntero"},
+  ],
+  matchPairs: [
+    {term:"Magnetismo", def:"Fuerza que atrae ciertos objetos sin tocarlos"},
+    {term:"Imán natural", def:"Existe en la naturaleza, como la magnetita"},
+    {term:"Imán artificial", def:"Creado por el ser humano"},
+    {term:"Electroimán", def:"Solo funciona con electricidad"},
+    {term:"Polos iguales", def:"Se empujan"},
+    {term:"Polos diferentes", def:"Se atraen"},
+    {term:"Si entonces si no", def:"Condicional que decide entre dos opciones"},
+    {term:"Operador o", def:"Se cumple con al menos una condición verdadera"},
+    {term:"Coordenada X", def:"Indica izquierda o derecha"},
+    {term:"Coordenada Y", def:"Indica arriba o abajo"},
+  ],
+  passage: {
+    title:"Max, el imán curioso",
+    text:"Max era un pequeño imán que vivía en una caja de herramientas en el garaje. Un día la caja quedó abierta y Max decidió explorar. Se deslizó hasta la cocina y probó pegarse a distintas cosas: una cuchara de metal se pegó a él de inmediato, pero una pelota de goma no se movió, y un lápiz tampoco funcionó. Entonces encontró un refrigerador lleno de imanes decorativos, y uno de ellos le explicó: \"Nuestro poder solo funciona con ciertos metales, como el hierro, el níquel o el cobalto\". Max sonrió: ¡ahora entendía que su poder se llamaba magnetismo! Desde entonces usó su poder para ayudar, recogiendo clips y encontrando llaves perdidas.",
+    questions: [
+      {q:"¿A qué objeto de metal se pegó Max de inmediato? Responde con oración completa.", keyword:"cuchara"},
+      {q:"¿Por qué la pelota de goma y el lápiz no se pegaron a Max?", keyword:"metal"},
+      {q:"¿Cómo se llama el poder de Max, según lo que aprendió en el cuento?", keyword:"magnetismo"}
+    ]
+  }
+},
+
+cs: {
+  name:"Ciencias Sociales", emoji:"🏛️", color:"#c0562a",
+  subtitle:"Lunes 7 de septiembre · Unidad 9 — Épocas de la historia de Guatemala y el Período Prehispánico",
+  tags:"Épocas históricas · Migración · Calendario maya · Señoríos indígenas",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#c0562a">Épocas de la historia de Guatemala</h2>
+      <p>La historia de cada país se organiza en épocas o períodos históricos, con el fin de facilitar su estudio y diferenciar los momentos en los que ocurren grandes cambios.</p>
+      <ul>
+        <li><b>Período Paleoindio</b> (12000 a 7000 a.C.): momento en que el ser humano llega al continente americano. Los primeros habitantes eran <b>nómadas</b>: no vivían en un lugar fijo, sino que se desplazaban constantemente. Eran cazadores, recolectores y pescadores.</li>
+        <li><b>Período Arcaico</b> (7000 a 2500 a.C.): período en que se descubre la agricultura. Al aumentar la recolección de frutos y semillas, las personas empezaron a vivir en pequeñas aldeas (sedentarismo) y surgió la división del trabajo.</li>
+        <li><b>Período Prehispánico</b> (2500 a.C. a 1524 d.C.): se desarrolla la civilización maya y los señoríos indígenas.</li>
+        <li><b>Época Colonial</b> (1524 a 1821): etapa en que la región era colonia española.</li>
+        <li><b>Época Republicana</b> (1821 a 1944): período en que se funda Guatemala como país independiente.</li>
+        <li><b>Época Contemporánea</b> (1944 a la actualidad): período en el que se produjo un conflicto interno y se firmó la paz.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#c0562a">El Período Prehispánico y los mayas</h2>
+      <p>La civilización maya ocupó una amplia región del sur de México, Guatemala, El Salvador y Honduras, conocida como <b>Mesoamérica</b>. El Período Prehispánico se subdivide en tres épocas:</p>
+      <ul>
+        <li><b>Preclásico</b> (2500 a.C. a 250 d.C.): surgió la civilización maya, la organización social se basó en linajes y caciques; se inició la escritura con glifos, la numeración vigesimal (con el concepto de cero) y la construcción de pirámides.</li>
+        <li><b>Clásico</b> (250 a 900 d.C.): la civilización maya llegó a su máximo esplendor. Se establecieron rutas comerciales, se usaba el trueque y el cacao como moneda, se cultivaba maíz, calabaza, frijol y chile. Las ciudades más poderosas fueron Tikal y Calakmul.</li>
+        <li><b>Postclásico</b> (900 a 1524): la civilización maya entró en decadencia; surgieron los señoríos indígenas del altiplano.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#c0562a">Los señoríos indígenas del Postclásico</h2>
+      <table class="tbl">
+        <tr><th>Señorío</th><th>Ubicación / dato clave</th></tr>
+        <tr><td>Cakchiqueles</td><td>Chimaltenango; capital Iximché</td></tr>
+        <tr><td>Mames</td><td>Huehuetenango; capital Zaculeu</td></tr>
+        <tr><td>Pokomames</td><td>Alta Verapaz</td></tr>
+        <tr><td>Quekchíes</td><td>Alta y Baja Verapaz, Izabal; llamada "tierra de guerra"</td></tr>
+        <tr><td>Quichés</td><td>El más poderoso y antiguo; capital Qumarcaj (Utatlán)</td></tr>
+        <tr><td>Tzutujiles</td><td>Orillas del lago de Atitlán; capital Chuitinamit</td></tr>
+      </table>
+    </div>
+    <div class="topic">
+      <h2 style="color:#c0562a">Migración</h2>
+      <p><b>Migración interna:</b> ocurre cuando la persona se muda de un departamento u otro por necesidades de trabajo, dentro del mismo país.</p>
+      <p><b>Migración externa:</b> ocurre cuando la persona se traslada a vivir a otro país. En Centroamérica, la mayor parte de la migración externa se dirige a Estados Unidos, generalmente por motivos económicos.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#c0562a">La medición del tiempo: el calendario maya</h2>
+      <p>El calendario maya está compuesto por dos sistemas:</p>
+      <ul>
+        <li><b>Tzolkin:</b> calendario de 260 días, organizado en 20 meses de 13 días. Se usaba para ceremonias religiosas.</li>
+        <li><b>Haab:</b> calendario de 365 días, organizado en 18 meses de 20 días, más 5 días adicionales. Marcaba el recorrido de la Tierra alrededor del Sol.</li>
+      </ul>
+      <p>Los mayas también llevaban la <b>cuenta larga</b>: el conteo de los días transcurridos desde el inicio de su historia, situado el 13 de agosto de 3114 a.C.</p>
+      <p>El <b>calendario gregoriano</b> tiene 365 días organizados en 12 meses. Se usa hoy en casi todo el mundo. Su nombre viene del papa Gregorio XIII, que lo estableció en 1582 para corregir el calendario juliano.</p>
+    </div>
+  `,
+  bank: [
+    {q:"¿En qué período llegó el ser humano al continente americano?", opts:["Período Paleoindio","Período Arcaico","Época Colonial"], correct:0},
+    {q:"¿Por qué los humanos del Período Paleoindio eran nómadas?", opts:["Porque seguían a los animales de presa","Porque no les gustaba un solo lugar","Porque no tenían familia"], correct:0},
+    {q:"¿Qué se descubrió en el Período Arcaico?", opts:["La agricultura","La escritura","La rueda"], correct:0},
+    {q:"¿En qué época se funda Guatemala como país independiente?", opts:["Época Republicana","Época Colonial","Período Prehispánico"], correct:0},
+    {q:"¿En qué época vivimos actualmente?", opts:["Época Contemporánea","Época Colonial","Período Arcaico"], correct:0},
+    {q:"¿Cuáles son las tres épocas del Período Prehispánico?", opts:["Preclásico, Clásico y Postclásico","Colonial, Republicana y Contemporánea","Paleoindio, Arcaico y Clásico"], correct:0},
+    {q:"¿Qué se inició en el Período Preclásico?", opts:["La escritura con glifos y la numeración vigesimal","La llegada de los españoles","El uso del calendario gregoriano"], correct:0},
+    {q:"¿Cuáles fueron las ciudades más poderosas del Período Clásico maya?", opts:["Tikal y Calakmul","Iximché y Zaculeu","Qumarcaj y Chuitinamit"], correct:0},
+    {q:"¿Qué se usaba como moneda en el Período Clásico maya?", opts:["El cacao","Las monedas de oro","El papel"], correct:0},
+    {q:"¿Cuál fue el señorío más poderoso y antiguo del Postclásico?", opts:["Quiché","Mam","Pokomam"], correct:0},
+    {q:"¿Dónde se ubicó el señorío tzutujil?", opts:["A orillas del lago de Atitlán","En Huehuetenango","En Alta Verapaz"], correct:0},
+    {q:"¿Cuál era la capital de los cakchiqueles?", opts:["Iximché","Zaculeu","Qumarcaj"], correct:0},
+    {q:"¿Qué es la migración interna?", opts:["Cambiar de residencia dentro del mismo país","Cambiar de residencia a otro país","No cambiar nunca de residencia"], correct:0},
+    {q:"¿Hacia qué país se dirige la mayor parte de la migración externa centroamericana?", opts:["Estados Unidos","España","Canadá"], correct:0},
+    {q:"¿Cuántos días tiene el calendario Tzolkin?", opts:["260","365","360"], correct:0},
+    {q:"¿Cuántos días tiene el calendario Haab?", opts:["365","260","300"], correct:0},
+    {q:"¿Qué es la cuenta larga maya?", opts:["El conteo de días desde el inicio de su historia","Un tipo de pirámide","Un idioma maya"], correct:0},
+    {q:"¿Quién estableció el calendario gregoriano?", opts:["El papa Gregorio XIII","Un rey maya","Un emperador romano"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"En el Período Paleoindio los humanos eran _______.", answer:"nomadas"},
+    {sentence:"En el Período Arcaico se descubrió la _______.", answer:"agricultura"},
+    {sentence:"El Período Prehispánico se subdivide en Preclásico, Clásico y _______.", answer:"postclasico"},
+    {sentence:"La capital de los mames se llamó _______.", answer:"zaculeu"},
+    {sentence:"La capital de los quichés se llamó _______.", answer:"qumarcaj"},
+    {sentence:"El señorío tzutujil se ubicó a orillas del lago de _______.", answer:"atitlan"},
+    {sentence:"El calendario maya de 260 días se llama _______.", answer:"tzolkin"},
+    {sentence:"El calendario maya de 365 días se llama _______.", answer:"haab"},
+    {sentence:"Cambiar de residencia dentro del mismo país es migración _______.", answer:"interna"},
+    {sentence:"El calendario que usamos hoy en casi todo el mundo es el calendario _______.", answer:"gregoriano"},
+  ],
+  matchPairs: [
+    {term:"Período Paleoindio", def:"El ser humano llega a América, es nómada"},
+    {term:"Período Arcaico", def:"Se descubre la agricultura"},
+    {term:"Período Preclásico", def:"Surge la civilización maya y la escritura"},
+    {term:"Período Clásico", def:"Máximo esplendor maya, ciudades Tikal y Calakmul"},
+    {term:"Período Postclásico", def:"Decadencia maya, surgen los señoríos"},
+    {term:"Quichés", def:"Señorío más poderoso y antiguo, capital Qumarcaj"},
+    {term:"Tzutujiles", def:"A orillas del lago de Atitlán"},
+    {term:"Tzolkin", def:"Calendario maya de 260 días"},
+    {term:"Haab", def:"Calendario maya de 365 días"},
+    {term:"Migración externa", def:"Trasladarse a vivir a otro país"},
+  ],
+  passage: {
+    title:"El viaje de la familia de Ana",
+    text:"El abuelo de Ana nació en un pequeño pueblo de Huehuetenango. Cuando era joven, se mudó a la ciudad de Guatemala buscando trabajo, sin salir del país: eso fue una migración interna. Años después, el tío de Ana decidió viajar a Estados Unidos para trabajar y enviar dinero a su familia; como se fue a vivir a otro país, esa fue una migración externa. Ana aprendió que las personas migran, sobre todo, por razones económicas, buscando mejores oportunidades para ellas y sus familias.",
+    questions: [
+      {q:"¿Qué tipo de migración hizo el abuelo de Ana? Explica por qué.", keyword:"interna"},
+      {q:"¿Qué tipo de migración hizo el tío de Ana? Explica por qué.", keyword:"externa"},
+      {q:"Según el texto, ¿por qué migran las personas generalmente?", keyword:"economic"}
+    ]
+  }
+},
+
+msn: {
+  name:"Medio Social y Natural", emoji:"🩺", color:"#0e8f8f",
+  subtitle:"Martes 8 de septiembre · Unidad 5 y 6 — Hábitos saludables, agresiones, enfermedades y vacunación",
+  tags:"Hábitos saludables · Agresiones · Enfermedades infecciosas · Vacunación · Drogas",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#0e8f8f">La salud y los hábitos saludables</h2>
+      <p>La <b>salud</b> es el estado de completo bienestar físico, mental y social; no padecer ninguna enfermedad o afección. Los <b>hábitos saludables</b> son las actividades que, realizadas de forma regular, nos permiten conservar una buena salud:</p>
+      <ul>
+        <li>Seguir una dieta sana y balanceada, baja en sal y en grasas.</li>
+        <li>No fumar, no beber ni tomar otro tipo de drogas.</li>
+        <li>Practicar ejercicio físico de forma regular.</li>
+        <li>Adoptar posturas correctas en las actividades diarias.</li>
+        <li>Descansar el tiempo suficiente.</li>
+        <li>Conservar una higiene corporal adecuada.</li>
+        <li>Acudir a revisiones médicas periódicas.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#0e8f8f">El ejercicio físico y el descanso</h2>
+      <p>Los <b>beneficios del ejercicio físico</b> son: evita el sobrepeso, mejora el funcionamiento del sistema locomotor, mejora la circulación sanguínea, mejora la autoestima y el estado de ánimo, ayuda a adquirir buenos hábitos posturales y enriquece la vida social.</p>
+      <p>Para que el ejercicio sea saludable, hay que practicarlo con regularidad y de forma moderada, respetando las fases de calentamiento y de relajación al inicio y al final de cada sesión.</p>
+      <p>El <b>descanso</b> es esencial para la salud. Se recomienda dormir un promedio de 10 horas diarias, seguir un horario regular, cenar algo liviano antes de acostarse y evitar aparatos electrónicos antes de dormir. La falta de sueño puede causar problemas físicos, bajo rendimiento escolar, pérdida de memoria y mal humor.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#0e8f8f">Las agresiones</h2>
+      <p>Existen diversos tipos de agresiones:</p>
+      <ul>
+        <li><b>Agresión física:</b> es un ataque al cuerpo de otra persona, con golpes o instrumentos que provocan daño.</li>
+        <li><b>Agresión verbal:</b> es todo insulto, grito o palabras que buscan provocar miedo, tristeza o ansiedad, para que la otra persona se sienta débil o amenazada.</li>
+      </ul>
+      <p>Si nos sentimos agredidos, no debemos callar: es conveniente explicar lo que sucede a una persona adulta de confianza (padres, profesores) para que nos ayuden a solucionar el problema.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#0e8f8f">Enfermedades infecciosas y no infecciosas</h2>
+      <p><b>Enfermedades infecciosas:</b> están causadas por agentes patógenos (bacterias, virus, hongos, parásitos) que penetran en el interior de nuestro cuerpo. Son contagiosas. Ejemplos: la gripe, la conjuntivitis y la varicela.</p>
+      <p><b>Enfermedades no infecciosas:</b> no están causadas por agentes patógenos y no se contagian. Ejemplos: las alergias, los problemas del corazón y el cáncer.</p>
+      <p>Los agentes patógenos entran al organismo por diversas vías: el aire que se respira, alimentos o agua contaminados, heridas en la piel, o contacto con personas infectadas. Las enfermedades infecciosas se desarrollan en tres fases: <b>incubación</b> (los microorganismos entran y empiezan a reproducirse), <b>desarrollo</b> (aparecen los síntomas) y <b>convalecencia</b> (el organismo se recupera).</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#0e8f8f">La vacunación</h2>
+      <p>Las <b>vacunas</b> son un tipo de medicamento que introduce en el organismo los gérmenes de una determinada enfermedad, pero debilitados, para que no puedan causar la infección. El cuerpo reconoce los gérmenes y produce anticuerpos capaces de detectarlos y destruirlos si vuelven a entrar.</p>
+      <p>Efectos positivos de las vacunas: evitan que muchas personas padezcan enfermedades que pueden dejar secuelas (como la poliomielitis) y reducen los gastos sanitarios, ya que es más económico vacunar que curar a las personas enfermas.</p>
+      <p>El <b>COVID</b> es un virus que se transmite por los fluidos expulsados al respirar o toser. Para protegerse: lavarse las manos frecuentemente, ventilar las salas cerradas, taparse la boca al toser y usar cubrebocas cuando sea necesario.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#0e8f8f">Las drogas</h2>
+      <p>Una <b>droga</b> es cualquier sustancia que altera el funcionamiento del sistema nervioso. El consumo de alcohol y tabaco, aunque no está prohibido, es perjudicial: afecta el hígado, el corazón, el cerebro, el estómago y los pulmones. El consumo de drogas puede provocar cambios en el carácter, como la agresividad, y adicción.</p>
+      <p>El proceso de dejar las drogas se llama <b>desintoxicación</b>. Para lograrlo ayuda: seguir tratamientos médicos, el apoyo de la familia y los amigos, y participar en actividades como el voluntariado y el deporte.</p>
+    </div>
+  `,
+  bank: [
+    {q:"¿Qué es la salud?", opts:["El estado de completo bienestar físico, mental y social","Solo no tener fiebre","Solo hacer ejercicio"], correct:0},
+    {q:"¿Cuál de estos es un hábito saludable?", opts:["Practicar ejercicio físico regularmente","Fumar ocasionalmente","Dormir 3 horas al día"], correct:0},
+    {q:"¿Cuántas horas diarias se recomienda dormir aproximadamente?", opts:["10 horas","3 horas","20 horas"], correct:0},
+    {q:"¿Qué beneficio tiene el ejercicio físico?", opts:["Mejora la autoestima y el estado de ánimo","Empeora la circulación","Provoca sobrepeso"], correct:0},
+    {q:"¿Qué fases se deben respetar al hacer ejercicio?", opts:["Calentamiento y relajación","Solo la fase final","Ninguna, se puede empezar de golpe"], correct:0},
+    {q:"¿Qué es una agresión física?", opts:["Un ataque al cuerpo de otra persona","Un insulto o grito","Ayudar a un compañero"], correct:0},
+    {q:"¿Qué es una agresión verbal?", opts:["Insultos, gritos o palabras que buscan dañar","Un golpe con un objeto","Compartir útiles escolares"], correct:0},
+    {q:"Si te sientes agredido, ¿qué debes hacer?", opts:["Contarlo a un adulto de confianza","Callar y no decir nada","Agredir de vuelta"], correct:0},
+    {q:"¿Qué causa las enfermedades infecciosas?", opts:["Agentes patógenos como bacterias y virus","La genética únicamente","El estrés únicamente"], correct:0},
+    {q:"¿Cuál de estas es una enfermedad NO infecciosa?", opts:["Una alergia","La gripe","La varicela"], correct:0},
+    {q:"¿Cuáles son las tres fases de una enfermedad infecciosa?", opts:["Incubación, desarrollo y convalecencia","Inicio, mitad y fin","Contagio, cura y recaída"], correct:0},
+    {q:"¿Qué es una vacuna?", opts:["Un medicamento que ayuda al cuerpo a crear defensas","Un tipo de virus","Una vitamina"], correct:0},
+    {q:"¿Qué produce el cuerpo después de recibir una vacuna?", opts:["Anticuerpos","Más virus","Fiebre permanente"], correct:0},
+    {q:"¿Cuál es un efecto positivo de las vacunas?", opts:["Reducen los gastos sanitarios","Aumentan las enfermedades","Eliminan la necesidad de higiene"], correct:0},
+    {q:"¿Cómo se transmite el COVID?", opts:["Por los fluidos expulsados al respirar o toser","Solo por la comida","Solo por el agua"], correct:0},
+    {q:"¿Qué es una droga?", opts:["Una sustancia que altera el sistema nervioso","Un tipo de alimento saludable","Una vitamina natural"], correct:0},
+    {q:"¿Cómo se llama el proceso de dejar las drogas?", opts:["Desintoxicación","Vacunación","Recuperación física"], correct:0},
+    {q:"¿Qué ayuda a una persona a dejar las drogas?", opts:["El apoyo de la familia y tratamientos médicos","Estar solo todo el tiempo","Ignorar el problema"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"La _______ es el estado de completo bienestar físico, mental y social.", answer:"salud"},
+    {sentence:"Un ataque al cuerpo de otra persona es una agresión _______.", answer:"fisica"},
+    {sentence:"Los insultos y gritos son una agresión _______.", answer:"verbal"},
+    {sentence:"Las enfermedades causadas por agentes patógenos son _______.", answer:"infecciosas"},
+    {sentence:"Las _______ ayudan al cuerpo a producir anticuerpos.", answer:"vacunas"},
+    {sentence:"El proceso de dejar las drogas se llama _______.", answer:"desintoxicacion"},
+    {sentence:"Se recomienda dormir un promedio de _______ horas diarias.", answer:"10"},
+    {sentence:"El _______ es un virus que se transmite por fluidos al respirar o toser.", answer:"covid"},
+  ],
+  matchPairs: [
+    {term:"Salud", def:"Bienestar físico, mental y social"},
+    {term:"Agresión física", def:"Ataque al cuerpo de otra persona"},
+    {term:"Agresión verbal", def:"Insultos, gritos o palabras dañinas"},
+    {term:"Enfermedad infecciosa", def:"Causada por agentes patógenos, se contagia"},
+    {term:"Enfermedad no infecciosa", def:"No se contagia, como las alergias"},
+    {term:"Vacuna", def:"Ayuda al cuerpo a crear anticuerpos"},
+    {term:"Desintoxicación", def:"Proceso de dejar las drogas"},
+    {term:"Incubación", def:"Fase en la que el microorganismo empieza a reproducirse"},
+  ],
+  passage: {
+    title:"La rutina de Alejandro",
+    text:"Alejandro es un niño de 10 años. Le encanta el fútbol y ayer por la tarde entrenó hasta las 8 de la noche. A las 9 y media cenó un puré de verduras y una pechuga de pollo. Se acostó a las 10 y estuvo leyendo un libro hasta las 11 y media. A las 6 de la mañana oyó a sus vecinos hacer ruido con unos muebles, pero siguió durmiendo, y se levantó a las 8.",
+    questions: [
+      {q:"¿Qué acciones favorecieron el buen descanso de Alejandro? Menciona al menos una.", keyword:""},
+      {q:"¿Qué pudo haber perjudicado su descanso esa noche?", keyword:"leyendo"},
+      {q:"¿A qué hora se levantó Alejandro y cuántas horas durmió aproximadamente?", keyword:"8"}
+    ]
+  }
+},
+
+dep: {
+  name:"Educación Física", emoji:"🤾", color:"#1e8c4a",
+  subtitle:"Lunes 7 de septiembre · Investigación: el balonmano (tiempo, cancha, faltas, jugadores, tipos y reglas)",
+  tags:"Cancha · Tiempo de partido · Jugadores · Faltas · Tipos de balonmano",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#1e8c4a">¿Qué es el balonmano?</h2>
+      <p>El <b>balonmano</b> (también llamado handball) es un deporte de equipo en el que dos equipos intentan anotar goles lanzando un balón con las manos hacia la portería contraria. Es un deporte olímpico que combina velocidad, fuerza y precisión. A diferencia del fútbol, en el balonmano el balón se juega principalmente con las manos, no con los pies (excepto el portero dentro de su área).</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">La cancha de balonmano</h2>
+      <p>La cancha de balonmano es un rectángulo de <b>40 metros de largo por 20 metros de ancho</b>, dividido en dos mitades iguales por la <b>línea central</b>. Cada mitad tiene una portería y las siguientes zonas:</p>
+      <ul>
+        <li><b>Área de gol (zona de 6 metros):</b> una zona semicircular frente a la portería. Solo el portero puede moverse dentro de ella; los demás jugadores no pueden pisarla.</li>
+        <li><b>Línea de 7 metros:</b> desde ahí se lanza el tiro libre de 7 metros (como un penal), cuando se comete una falta grave dentro o cerca del área de gol.</li>
+        <li><b>Línea de 9 metros (golpe franco):</b> desde ahí se sacan los golpes francos cuando se comete una falta fuera del área de gol.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">Tiempo de partido</h2>
+      <p>La duración del partido depende de la edad de los jugadores:</p>
+      <ul>
+        <li>Jugadores mayores de 16 años: dos tiempos de <b>30 minutos</b> cada uno.</li>
+        <li>Categoría de 12 a 16 años: dos tiempos de <b>25 minutos</b> cada uno.</li>
+      </ul>
+      <p>Entre los dos tiempos hay un descanso.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">Los jugadores</h2>
+      <p>Cada equipo tiene <b>7 jugadores</b> en la cancha: 1 portero y 6 jugadores de campo. Las sustituciones son ilimitadas (se pueden cambiar jugadores en cualquier momento). Cada jugador de campo tiene un rol:</p>
+      <ul>
+        <li><b>Portero:</b> defiende la portería, es el único que puede entrar al área de gol.</li>
+        <li><b>Central:</b> coordina el ataque y distribuye el balón a sus compañeros.</li>
+        <li><b>Laterales:</b> tienen un lanzamiento potente a distancia.</li>
+        <li><b>Extremos:</b> buscan anotar desde los ángulos laterales de la cancha.</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">Las faltas</h2>
+      <ul>
+        <li><b>Faltas leves</b> (empujones o bloqueos normales): se sancionan con un tiro libre para el equipo contrario, desde la línea de 9 metros.</li>
+        <li><b>Faltas graves o reiteradas:</b> se sancionan con una <b>exclusión de 2 minutos</b>; el jugador sale de la cancha y su equipo queda con un jugador menos durante ese tiempo.</li>
+        <li><b>Faltas muy graves:</b> el jugador puede ser <b>expulsado</b> del partido (tarjeta roja).</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">Tipos de balonmano</h2>
+      <ul>
+        <li><b>Balonmano de pista (el tradicional):</b> se juega en una cancha techada o al aire libre de 40x20 metros, con 7 jugadores por equipo, en dos tiempos de 25 ó 30 minutos según la edad.</li>
+        <li><b>Balonmano playa (beach handball):</b> se juega sobre arena, con equipos de solo <b>4 jugadores</b> (incluido el portero), en dos tiempos de <b>10 minutos</b> cada uno. Las reglas premian las jugadas espectaculares, como los goles "de espaldas".</li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#1e8c4a">Características del balonmano</h2>
+      <ul>
+        <li>Es un deporte de equipo, jugado con las manos.</li>
+        <li>Combina velocidad, fuerza, resistencia y precisión en los lanzamientos.</li>
+        <li>Se originó en Europa (Alemania y los países escandinavos) a inicios del siglo XX.</li>
+        <li>Es un deporte olímpico desde 1972 (categoría masculina) y 1976 (categoría femenina).</li>
+        <li>Fomenta el trabajo en equipo, la estrategia y el juego limpio.</li>
+      </ul>
+    </div>
+  `,
+  bank: [
+    {q:"¿Qué es el balonmano?", opts:["Un deporte de equipo que se juega con las manos","Un deporte que se juega solo con los pies","Un deporte individual sin balón"], correct:0},
+    {q:"¿Cuáles son las medidas de la cancha de balonmano?", opts:["40 metros de largo por 20 de ancho","20 metros de largo por 10 de ancho","100 metros de largo por 50 de ancho"], correct:0},
+    {q:"¿Cómo se llama la zona semicircular frente a la portería?", opts:["Área de gol (zona de 6 metros)","Línea central","Línea de 9 metros"], correct:0},
+    {q:"¿Quién puede moverse dentro del área de gol?", opts:["Solo el portero","Cualquier jugador","Nadie, ni el portero"], correct:0},
+    {q:"¿Desde dónde se lanza el tiro libre de 7 metros?", opts:["Desde la línea de 7 metros, frente a la portería","Desde la línea central","Desde fuera de la cancha"], correct:0},
+    {q:"¿Cuánto dura cada tiempo para jugadores mayores de 16 años?", opts:["30 minutos","10 minutos","60 minutos"], correct:0},
+    {q:"¿Cuánto dura cada tiempo para la categoría de 12 a 16 años?", opts:["25 minutos","30 minutos","15 minutos"], correct:0},
+    {q:"¿Cuántos jugadores tiene un equipo de balonmano de pista en la cancha?", opts:["7, incluido el portero","11, incluido el portero","5, incluido el portero"], correct:0},
+    {q:"¿Cuál es la función del jugador 'central'?", opts:["Coordina el ataque y distribuye el balón","Solo defiende la portería","Se queda fuera de la cancha"], correct:0},
+    {q:"¿Cuál es la función de los 'extremos'?", opts:["Anotar desde los ángulos laterales de la cancha","Defender el área de gol","Sacar el balón de banda"], correct:0},
+    {q:"¿Qué sanción recibe una falta leve, como un empujón?", opts:["Un tiro libre para el equipo contrario","Expulsión inmediata","Nada, se sigue jugando"], correct:0},
+    {q:"¿Qué sanción recibe una falta grave o repetida?", opts:["Exclusión de 2 minutos","Un punto extra","Cambio de cancha"], correct:0},
+    {q:"¿Qué puede pasar si un jugador comete una falta muy grave?", opts:["Puede ser expulsado del partido","Recibe un premio","Nada en absoluto"], correct:0},
+    {q:"¿Cuántos jugadores tiene un equipo en el balonmano playa?", opts:["4, incluido el portero","7, incluido el portero","2, incluido el portero"], correct:0},
+    {q:"¿Dónde se juega el balonmano playa?", opts:["Sobre arena","Sobre hielo","Sobre pasto"], correct:0},
+    {q:"¿En qué continente se originó el balonmano?", opts:["Europa","América","Asia"], correct:0},
+    {q:"¿Desde cuándo es el balonmano un deporte olímpico (categoría masculina)?", opts:["Desde 1972","Desde 2000","Desde 1900"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"La cancha de balonmano mide 40 metros de largo por _______ metros de ancho.", answer:"20"},
+    {sentence:"Solo el _______ puede entrar al área de gol.", answer:"portero"},
+    {sentence:"El tiro libre de 7 metros se lanza cuando hay una falta _______.", answer:"grave"},
+    {sentence:"Para mayores de 16 años, cada tiempo dura _______ minutos.", answer:"30"},
+    {sentence:"Un equipo de balonmano de pista tiene _______ jugadores en la cancha.", answer:"7"},
+    {sentence:"Una falta grave o repetida se sanciona con una exclusión de _______ minutos.", answer:"2"},
+    {sentence:"El balonmano playa se juega sobre _______.", answer:"arena"},
+    {sentence:"En el balonmano playa cada equipo tiene _______ jugadores.", answer:"4"},
+  ],
+  matchPairs: [
+    {term:"Área de gol", def:"Zona semicircular donde solo entra el portero"},
+    {term:"Línea de 7 metros", def:"Desde donde se lanza el tiro libre por falta grave"},
+    {term:"Línea de 9 metros", def:"Desde donde se saca el golpe franco"},
+    {term:"Portero", def:"Defiende la portería, único que entra al área de gol"},
+    {term:"Central", def:"Coordina el ataque y distribuye el balón"},
+    {term:"Extremos", def:"Anotan desde los ángulos laterales"},
+    {term:"Exclusión de 2 minutos", def:"Sanción por falta grave o repetida"},
+    {term:"Balonmano playa", def:"Se juega en arena, con 4 jugadores por equipo"},
+  ],
+  passage: {
+    title:"El primer partido de Mateo",
+    text:"Mateo jugó su primer partido de balonmano el sábado. Su equipo tenía 7 jugadores en la cancha, y él era uno de los extremos. En el primer tiempo, un jugador del otro equipo empujó a un compañero de Mateo dentro del área de gol, así que el árbitro marcó un tiro libre de 7 metros. Su equipo lo aprovechó y anotó un gol. Más tarde, otro jugador cometió una falta grave y tuvo que salir de la cancha durante 2 minutos. Al final, el equipo de Mateo ganó el partido, jugado en dos tiempos de 25 minutos.",
+    questions: [
+      {q:"¿Cuántos jugadores tenía el equipo de Mateo en la cancha? Responde con oración completa.", keyword:"7"},
+      {q:"¿Por qué se marcó el tiro libre de 7 metros?", keyword:"empuj"},
+      {q:"¿Qué sanción recibió el jugador que cometió la falta grave?", keyword:"2"}
+    ]
+  }
+},
+
+grammar: {
+  name:"Grammar", emoji:"\U0001F4D8", color:"#2e6da4",
+  subtitle:"Martes 8 de septiembre · Unit 8 — That's Really Interesting! Hobbies, relative clauses with who",
+  tags:"Hobbies vocabulary · Who clauses · Direct & indirect objects",
+  topics: `
+    <div class="topic">
+      <h2 style="color:#2e6da4">Vocabulary: Hobbies</h2>
+      <table class="tbl">
+        <tr><th>Word</th><th>Meaning</th><th></th></tr>
+        <tr><td>alone <button class="say-btn" onclick="speakEn('alone')">🔊</button></td><td>solo/a</td><td></td></tr>
+        <tr><td>avatar <button class="say-btn" onclick="speakEn('avatar')">🔊</button></td><td>figura que te representa en un juego</td><td></td></tr>
+        <tr><td>collect <button class="say-btn" onclick="speakEn('collect')">🔊</button></td><td>coleccionar</td><td></td></tr>
+        <tr><td>compete <button class="say-btn" onclick="speakEn('compete')">🔊</button></td><td>competir</td><td></td></tr>
+        <tr><td>controller <button class="say-btn" onclick="speakEn('controller')">🔊</button></td><td>control de videojuegos</td><td></td></tr>
+        <tr><td>cooperate <button class="say-btn" onclick="speakEn('cooperate')">🔊</button></td><td>cooperar</td><td></td></tr>
+        <tr><td>creative <button class="say-btn" onclick="speakEn('creative')">🔊</button></td><td>creativo/a</td><td></td></tr>
+        <tr><td>enjoy <button class="say-btn" onclick="speakEn('enjoy')">🔊</button></td><td>disfrutar</td><td></td></tr>
+        <tr><td>hobby <button class="say-btn" onclick="speakEn('hobby')">🔊</button></td><td>pasatiempo</td><td></td></tr>
+        <tr><td>points <button class="say-btn" onclick="speakEn('points')">🔊</button></td><td>puntos</td><td></td></tr>
+        <tr><td>score <button class="say-btn" onclick="speakEn('score')">🔊</button></td><td>puntaje</td><td></td></tr>
+        <tr><td>screen <button class="say-btn" onclick="speakEn('screen')">🔊</button></td><td>pantalla</td><td></td></tr>
+        <tr><td>together <button class="say-btn" onclick="speakEn('together')">🔊</button></td><td>juntos</td><td></td></tr>
+      </table>
+    </div>
+    <div class="topic">
+      <h2 style="color:#2e6da4">Vocabulary 2: Toys and collectibles</h2>
+      <table class="tbl">
+        <tr><th>Word</th><th>Meaning</th></tr>
+        <tr><td>comic book <button class="say-btn" onclick="speakEn('comic book')">🔊</button></td><td>cómic / historieta</td></tr>
+        <tr><td>bug <button class="say-btn" onclick="speakEn('bug')">🔊</button></td><td>insecto</td></tr>
+        <tr><td>dinosaur <button class="say-btn" onclick="speakEn('dinosaur')">🔊</button></td><td>dinosaurio</td></tr>
+        <tr><td>fossil <button class="say-btn" onclick="speakEn('fossil')">🔊</button></td><td>fósil</td></tr>
+        <tr><td>stuffed animal <button class="say-btn" onclick="speakEn('stuffed animal')">🔊</button></td><td>animal de peluche</td></tr>
+      </table>
+    </div>
+    <div class="topic">
+      <h2 style="color:#2e6da4">Grammar 1: Describing people with "who"</h2>
+      <p>Se puede usar <b>who</b> para unir dos oraciones y describir o definir a la persona de la que se habla.</p>
+      <ul>
+        <li>I have a friend. She collects coins. → <b>I have a friend who collects coins.</b></li>
+        <li>Nico has two sisters. They play soccer. → <b>Nico has two sisters who play soccer.</b></li>
+        <li>The boy is friendly. He sits next to me. → <b>The boy who sits next to me is friendly.</b></li>
+        <li>The people are French. They live next door. → <b>The people who live next door are French.</b></li>
+      </ul>
+    </div>
+    <div class="topic">
+      <h2 style="color:#2e6da4">Grammar 2: Direct and indirect objects</h2>
+      <p>Se puede expresar lo mismo de dos maneras:</p>
+      <ul>
+        <li>Show <u>the comic book</u> to James. = Show James <u>the comic book</u>.</li>
+        <li>My dad gave <u>this fossil</u> to me. = My dad gave <u>me</u> this fossil.</li>
+        <li>My mom bought <u>stuffed animals</u> for them. = My mom bought <u>them</u> stuffed animals.</li>
+      </ul>
+      <p>Con <b>give</b> y <b>show</b> se usa <b>to</b>; con <b>make</b> y <b>buy</b> se usa <b>for</b>. Pronombres de objeto: me, you, her, him, us, them.</p>
+    </div>
+    <div class="topic">
+      <h2 style="color:#2e6da4">Reading: Video Games, Then and Now</h2>
+      <p>One of the first video games, invented in 1958, was a tennis game. Video games became popular in the 1970s in video arcades. In 1972 came the first home video game. In the 1990s, cell phones and the internet changed gaming, with the first popular multiplayer game in 1994. In the 2000s, game consoles got faster, and controllers could detect movement. In the 2010s, virtual reality headsets were developed.</p>
+    </div>
+  `,
+  bank: [
+    {q:"What does 'hobby' mean?", opts:["Pasatiempo","Tarea","Examen"], correct:0},
+    {q:"What does 'collect' mean?", opts:["Coleccionar","Vender","Perder"], correct:0},
+    {q:"What does 'compete' mean?", opts:["Competir","Cocinar","Dormir"], correct:0},
+    {q:"What does 'cooperate' mean?", opts:["Cooperar","Pelear","Esconder"], correct:0},
+    {q:"What does 'alone' mean?", opts:["Solo/a","Juntos","Feliz"], correct:0},
+    {q:"What does 'creative' mean?", opts:["Creativo/a","Aburrido/a","Cansado/a"], correct:0},
+    {q:"What does 'avatar' mean in a video game?", opts:["A figure that represents you","A type of controller","A kind of score"], correct:0},
+    {q:"What does 'fossil' mean?", opts:["Fósil","Insecto vivo","Animal de peluche"], correct:0},
+    {q:"Complete: 'I have a friend ___ collects coins.'", opts:["who","which","where"], correct:0},
+    {q:"Join: 'The boy is friendly. He sits next to me.'", opts:["The boy who sits next to me is friendly.","The boy is friendly who.","Friendly the boy sits."], correct:0},
+    {q:"'Show the comic book to James' means the same as:", opts:["Show James the comic book.","Show James for the comic book.","James shows the comic book."], correct:0},
+    {q:"'My dad gave this fossil to me' means the same as:", opts:["My dad gave me this fossil.","My dad gave this fossil for me.","I gave my dad this fossil."], correct:0},
+    {q:"With the verb 'buy', which word do we use?", opts:["for","to","with"], correct:0},
+    {q:"With the verb 'give', which word do we use?", opts:["to","for","of"], correct:0},
+    {q:"When was one of the first video games invented?", opts:["1958","1994","2010"], correct:0},
+    {q:"When did the first popular multiplayer game come out?", opts:["1994","1958","1972"], correct:0},
+    {q:"What was developed in the 2010s for gaming?", opts:["Virtual reality headsets","The first home console","The first arcade"], correct:0},
+  ],
+  fillPool: [
+    {sentence:"A pasatiempo in English is a _______.", answer:"hobby"},
+    {sentence:"To coleccionar cosas in English is to _______.", answer:"collect"},
+    {sentence:"'I have a friend ___ collects coins' needs the word _______.", answer:"who"},
+    {sentence:"With 'give', we use the word _______ before the person.", answer:"to"},
+    {sentence:"With 'buy', we use the word _______ before the person.", answer:"for"},
+    {sentence:"A figure that represents you in a video game is an _______.", answer:"avatar"},
+    {sentence:"The first popular multiplayer video game came out in _______.", answer:"1994"},
+  ],
+  matchPairs: [
+    {term:"Hobby", def:"Pasatiempo"},
+    {term:"Collect", def:"Coleccionar"},
+    {term:"Compete", def:"Competir"},
+    {term:"Cooperate", def:"Cooperar"},
+    {term:"Alone", def:"Solo/a"},
+    {term:"Together", def:"Juntos"},
+    {term:"Creative", def:"Creativo/a"},
+    {term:"Avatar", def:"Figura que te representa en un juego"},
+    {term:"Fossil", def:"Fósil"},
+    {term:"Stuffed animal", def:"Animal de peluche"},
+  ]
+}
+};
+
+/* ======================================================================
+   READING — interactive vocab/audio page (Speaking-style)
+   ====================================================================== */
+const REA_VOCAB = [
+  {en:"gesture", es:"gesto / seña", icon:"🤚", unit:"11", ex:"People talk with words, but they also talk with gestures.", note:"Cualquier movimiento de manos o cuerpo que comunica algo."},
+  {en:"point", es:"señalar", icon:"👉", unit:"11", ex:"Pointing is OK in some countries.", note:"Se usa cuando señalas algo con el dedo para mostrarlo."},
+  {en:"rude", es:"grosero / de mala educación", icon:"🙅", unit:"11", ex:"It is very rude in China, Japan, and Indonesia.", note:"Describe un gesto que no es de buena educación en cierto lugar."},
+  {en:"thumbs-up", es:"pulgar arriba", icon:"👍", unit:"11", ex:"The thumbs-up means good job in Canada and the US.", note:"Gesto de aprobación común, pero ofensivo en Egipto y Rusia."},
+  {en:"cross (fingers)", es:"cruzar los dedos", icon:"🤞", unit:"11", ex:"Crossing your fingers means good luck in some countries.", note:"Gesto para desear buena suerte — ¡pero es grosero en Vietnam!"},
+  {en:"luck", es:"suerte", icon:"🍀", unit:"11", ex:"Crossing your fingers means good luck.", note:"Se usa para hablar de buena o mala fortuna."},
+  {en:"take a nap", es:"tomar una siesta", icon:"😴", unit:"12", ex:"People in Spain take a nap in the afternoon.", note:"Hablar de dormir un rato corto durante el día."},
+  {en:"instead", es:"en lugar de", icon:"🔁", unit:"12", ex:"People take a nap instead of working.", note:"Se usa para decir que algo reemplaza a otra cosa."},
+  {en:"midday", es:"mediodía", icon:"☀️", unit:"12", ex:"This midday nap is called a siesta.", note:"Se refiere a la hora central del día, alrededor del mediodía."},
+  {en:"shop", es:"tienda", icon:"🏪", unit:"12", ex:"Many shops close during siesta time.", note:"Lugar donde se compran cosas; también puede ser verbo (comprar)."},
+  {en:"temperature", es:"temperatura", icon:"🌡️", unit:"12", ex:"The temperature is hottest between 2pm and 5pm.", note:"Se usa para hablar de qué tan caliente o frío está algo."},
+  {en:"indoors", es:"adentro / bajo techo", icon:"🏠", unit:"12", ex:"Children stay indoors and quiet.", note:"Significa estar dentro de un edificio o casa, no afuera."},
+];
+
+const REA_SENTENCES = [
+  {en:"Pointing is OK in some countries, but it is very rude in China, Japan, and Indonesia.", es:"Señalar está bien en algunos países, pero es muy grosero en China, Japón e Indonesia."},
+  {en:"The thumbs-up means good job in Canada and the US.", es:"El pulgar arriba significa 'buen trabajo' en Canadá y Estados Unidos."},
+  {en:"The thumbs-up is very rude in Egypt and Russia.", es:"El pulgar arriba es muy grosero en Egipto y Rusia."},
+  {en:"Crossing your fingers means good luck in some countries.", es:"Cruzar los dedos significa buena suerte en algunos países."},
+  {en:"Crossing your fingers is very rude in Vietnam.", es:"Cruzar los dedos es muy grosero en Vietnam."},
+  {en:"People in Spain and Mexico take a nap in the afternoon instead of working.", es:"En España y México, las personas duermen una siesta en la tarde en lugar de trabajar."},
+  {en:"This midday nap is called a siesta.", es:"A esta siesta de mediodía se le llama 'siesta'."},
+  {en:"The temperature is hottest between 2pm and 5pm.", es:"La temperatura es más caliente entre las 2pm y las 5pm."},
+  {en:"Many shops close during siesta time.", es:"Muchas tiendas cierran durante la siesta."},
+  {en:"Children stay indoors and must be quiet.", es:"Los niños se quedan adentro y deben estar callados."},
+  {en:"At 5pm, shops open again and children can play outside.", es:"A las 5pm, las tiendas abren de nuevo y los niños pueden jugar afuera."},
+];
+
+const REA_FILL = [
+  {sentence:"Pointing is OK in some countries, but it is very ___ in China, Japan, and Indonesia.", answer:"rude"},
+  {sentence:"The ___ means good job in Canada and the US.", answer:"thumbs-up"},
+  {sentence:"Crossing your fingers means good ___ in some countries.", answer:"luck"},
+  {sentence:"People in Spain and Mexico take a ___ in the afternoon.", answer:"nap"},
+  {sentence:"The temperature is hottest between 2pm and 5pm, so people stay ___.", answer:"indoors"},
+  {sentence:"Many ___ close during siesta time.", answer:"shops"},
+  {sentence:"This midday nap is called a ___.", answer:"siesta"},
+  {sentence:"People take a nap ___ of working in the afternoon.", answer:"instead"},
+];
+
+const REA_PASSAGES = [
+  {title:"Hands Can Talk",
+   text:"People talk with words, but they also talk with their hands. This is called a gesture. Hand gestures mean different things in different places. Pointing is OK in some countries, but it is very rude in China, Japan, and Indonesia. The thumbs-up means good job in Canada and the US, but it is very rude in Egypt and Russia. Crossing your fingers means good luck in some countries, but it is very rude in Vietnam.",
+   questions:[
+     {q:"Where is pointing very rude?", a:"china", hint:"(a country)"},
+     {q:"What does the thumbs-up mean in Canada and the US?", a:"good job", hint:"(meaning)"},
+     {q:"Where is crossing your fingers very rude?", a:"vietnam", hint:"(a country)"}
+   ],
+   missing:2},
+  {title:"Siestas",
+   text:"Most people do not take a nap in the afternoon. However, in Spain and Mexico, people take a nap every afternoon instead of working. This midday nap is called a siesta. The temperature is hottest between 2pm and 5pm, so people take a siesta. During a siesta, many shops close. Children come home from school but they must stay indoors and be quiet. At 5pm, shops open again and children can play outside.",
+   questions:[
+     {q:"What is a midday nap called?", a:"siesta", hint:"(word)"},
+     {q:"When is the temperature hottest?", a:"2pm", hint:"(time)"},
+     {q:"What must children do during siesta time?", a:"stay indoors", hint:"(action)"}
+   ],
+   missing:2}
+];
+
+const REA_MISSING_OPTIONS = ["el lugar (where)", "los personajes (who)", "cómo se sienten los personajes (feelings)"];
+
+const REA_CHOICE = [
+  {sentence:"Pointing is (OK / rude) in some countries, but not in China, Japan, or Indonesia.", options:["OK","rude"], correct:0},
+  {sentence:"The thumbs-up is very (polite / rude) in Egypt and Russia.", options:["polite","rude"], correct:1},
+  {sentence:"Crossing your fingers means (good luck / bad luck) in some countries.", options:["good luck","bad luck"], correct:0},
+  {sentence:"Crossing your fingers is very (rude / normal) in Vietnam.", options:["rude","normal"], correct:0},
+  {sentence:"In Spain and Mexico, people (take a nap / go to work) in the afternoon.", options:["take a nap","go to work"], correct:0},
+  {sentence:"A midday nap is called a (siesta / fiesta).", options:["siesta","fiesta"], correct:0},
+  {sentence:"The temperature is (hottest / coldest) between 2pm and 5pm.", options:["hottest","coldest"], correct:0},
+  {sentence:"During siesta time, many shops (close / open).", options:["close","open"], correct:0},
+  {sentence:"During siesta time, children must stay (indoors / outdoors) and be quiet.", options:["indoors","outdoors"], correct:0},
+  {sentence:"At 5pm, shops (open again / close forever) and children can play outside.", options:["open again","close forever"], correct:0},
+];
+
+/* ======================================================================
+   HOME SCREEN
+   ====================================================================== */
+const PROXIMAMENTE = [
+  {emoji:"✍️", name:"Caligrafía", when:"Lunes 7 de septiembre"},
+  {emoji:"📗", name:"Habilidad Lectora", when:"Martes 8 de septiembre"},
+  {emoji:"📝", name:"Comunicación y Lenguaje", when:"Miércoles 9 de septiembre"},
+  {emoji:"🎨", name:"Expresión Artística", when:"Miércoles 9 de septiembre"},
+  {emoji:"📖", name:"Reading", when:"Miércoles 9 de septiembre"},
+  {emoji:"🌿", name:"Kaqchikel", when:"Miércoles 9 de septiembre"},
+  {emoji:"🔢", name:"Matemática", when:"Jueves 10 de septiembre"},
+  {emoji:"🎧", name:"Listening / Phonics", when:"Jueves 10 de septiembre"},
+  {emoji:"📚", name:"Proyecto de Lectura", when:"Jueves 10 de septiembre"},
+  {emoji:"🌱", name:"Productividad y Desarrollo", when:"Jueves 10 de septiembre"},
+];
+
+function buildHome(){
+  const grid = document.getElementById('homeGrid');
+  let html = '';
+  Object.keys(SUBJECTS).forEach(id=>{
+    const s = SUBJECTS[id];
+    html += `<div class="subj-card" style="border-top-color:${s.color}" onclick="openSubject('${id}')">
+      <div class="se">${s.emoji}</div>
+      <div class="sn" style="color:${s.color}">${s.name}</div>
+      <div class="st">${s.tags}</div>
+      <span class="sb" style="background:${s.color}22;color:${s.color}">✅ Disponible</span>
+    </div>`;
+  });
+  // Proximamente
+  PROXIMAMENTE.forEach(p=>{
+    html += `<div class="subj-card proximamente">
+      <div class="se">${p.emoji}</div>
+      <div class="sn">${p.name}</div>
+      <div class="st">${p.when}</div>
+      <span class="sb" style="background:#eee;color:#777">Próximamente</span>
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+buildHome();
+
+/* ======================================================================
+   HELPERS
+   ====================================================================== */
+function shuffle(arr){ return [...arr].sort(()=>Math.random()-0.5); }
+function pickRandom(arr, n){ return shuffle(arr).slice(0, Math.min(n, arr.length)); }
+
+/* Pronunciation helper: click any 🔊 button to hear an English word/phrase */
+let enVoices = [];
+function loadEnVoices(){ enVoices = speechSynthesis.getVoices(); }
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = loadEnVoices; loadEnVoices(); }
+function speakEn(text){
+  if(!('speechSynthesis' in window)){ alert('Este navegador no soporta lectura en voz alta. Usa Google Chrome.'); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = enVoices.find(v=>v.lang==='en-US') || enVoices.find(v=>v.lang && v.lang.startsWith('en'));
+  if(v) u.voice = v;
+  u.lang = 'en-US';
+  u.rate = 0.9;
+  speechSynthesis.speak(u);
+}
+
+/* ======================================================================
+   NAVIGATION
+   ====================================================================== */
+let currentSubjectId = null;
+
+function goHome(){
+  currentSubjectId = null;
+  document.getElementById('homeView').style.display='block';
+  document.getElementById('subjectView').style.display='none';
+  document.getElementById('calView').style.display='none';
+  document.getElementById('reaView').style.display='none';
+  document.getElementById('spView').style.display='none';
+  document.getElementById('backBtn').style.display='none';
+  document.getElementById('headerTitle').textContent='🎓 Ignacio — Plataforma de Estudio';
+  document.getElementById('headerSubtitle').textContent='Colegio Bilingüe Holandes · Cuarto Primaria · III Bimestre';
+  document.getElementById('appHeader').style.background='var(--ink)';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function openSubject(id){
+  currentSubjectId = id;
+  const s = SUBJECTS[id];
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('calView').style.display='none';
+  document.getElementById('reaView').style.display='none';
+  document.getElementById('spView').style.display='none';
+  document.getElementById('subjectView').style.display='block';
+  document.getElementById('backBtn').style.display='inline-block';
+  document.getElementById('headerTitle').textContent = s.emoji+' '+s.name+' — Cuarto Primaria';
+  document.getElementById('headerSubtitle').textContent = 'Colegio Bilingüe Holandes · '+s.subtitle;
+  document.getElementById('appHeader').style.background = s.color;
+
+  document.querySelectorAll('#subjectTabs .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===0);
+    b.style.background = i===0 ? s.color : '#fff';
+    b.style.borderColor = s.color;
+    b.style.color = i===0 ? '#fff' : s.color;
+  });
+  document.querySelectorAll('#subjectView .panel').forEach((p)=>p.classList.toggle('active', p.id==='aprende'));
+
+  document.getElementById('topicsContainer').innerHTML = s.topics;
+  renderPractice(s);
+  renderCuestionario(s);
+  renderExamVariantSelector(s);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderCuestionario(s){
+  const list = document.getElementById('cuestionarioList');
+  list.innerHTML = s.bank.map((item,i)=>`
+    <div class="qz">
+      <div class="qtext">${i+1}. ${item.q}</div>
+      <div style="color:var(--good);font-weight:700;font-size:14px;">${item.opts[item.correct]}</div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('#subjectTabs .tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const s = SUBJECTS[currentSubjectId];
+    document.querySelectorAll('#subjectTabs .tab-btn').forEach(b=>{
+      const isActive = b===btn;
+      b.classList.toggle('active', isActive);
+      b.style.background = isActive ? s.color : '#fff';
+      b.style.borderColor = s.color;
+      b.style.color = isActive ? '#fff' : s.color;
+    });
+    document.querySelectorAll('#subjectView .panel').forEach(p=>p.classList.toggle('active', p.id===btn.dataset.tab));
+  });
+});
+
+/* ======================================================================
+   PRACTICE QUIZ (unchanged pattern — Kav said this part is good)
+   ====================================================================== */
+function renderPractice(s){
+  const container = document.getElementById('practiceQuiz');
+  container.innerHTML = '';
+  shuffle(s.bank).forEach((item,idx)=>{
+    const div = document.createElement('div');
+    div.className='qz';
+    div.innerHTML = `<div class="qtext">${idx+1}. ${item.q}</div>` +
+      item.opts.map((o,i)=>`<button class="opt" data-i="${i}">${String.fromCharCode(97+i)}. ${o}</button>`).join('') +
+      `<div class="fb"></div>`;
+    const btns = div.querySelectorAll('.opt');
+    btns.forEach(b=>{
+      b.addEventListener('click',()=>{
+        btns.forEach(x=>x.disabled=true);
+        const fb = div.querySelector('.fb');
+        if(parseInt(b.dataset.i)===item.correct){
+          b.classList.add('correct'); fb.textContent='¡Correcto! 🎉'; fb.className='fb good';
+        } else {
+          b.classList.add('wrong'); btns[item.correct].classList.add('correct');
+          fb.textContent='Incorrecto. La respuesta correcta está en verde.'; fb.className='fb bad';
+        }
+      });
+    });
+    container.appendChild(div);
+  });
+}
+
+/* ======================================================================
+   MATCHING MINI-GAME (used inside every exam, Parte 2)
+   ====================================================================== */
+function buildMatchGame(container, pairs){
+  const terms = shuffle(pairs.map((p,i)=>({text:p.term, i})));
+  const defs = shuffle(pairs.map((p,i)=>({text:p.def, i})));
+  container.innerHTML = `
+    <p class="hint" style="margin-top:0;">Toca un término y luego su pareja correcta.</p>
+    <div class="match-wrap">
+      <div class="match-col" id="mcTerms"></div>
+      <div class="match-col" id="mcDefs"></div>
+    </div>
+    <div class="match-status" id="mcStatus">0 / ${pairs.length} relacionados</div>
+  `;
+  const colT = container.querySelector('#mcTerms');
+  const colD = container.querySelector('#mcDefs');
+  const status = container.querySelector('#mcStatus');
+  let selectedTerm = null;
+  let matchedCount = 0;
+  container.matchScore = 0;
+  container.matchTotal = pairs.length;
+
+  terms.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='match-btn'; b.textContent=t.text; b.dataset.i=t.i;
+    colT.appendChild(b);
+  });
+  defs.forEach(d=>{
+    const b=document.createElement('button');
+    b.className='match-btn'; b.textContent=d.text; b.dataset.i=d.i;
+    colD.appendChild(b);
+  });
+
+  colT.querySelectorAll('.match-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.classList.contains('correct')) return;
+      colT.querySelectorAll('.match-btn.selected').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      selectedTerm = b;
+    });
+  });
+  colD.querySelectorAll('.match-btn').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.classList.contains('correct') || !selectedTerm) return;
+      if(b.dataset.i === selectedTerm.dataset.i){
+        b.classList.add('correct'); selectedTerm.classList.add('correct');
+        selectedTerm.classList.remove('selected');
+        container.matchScore++;
+        matchedCount++;
+        status.textContent = matchedCount+' / '+pairs.length+' relacionados';
+        selectedTerm = null;
+      } else {
+        b.classList.add('wrong');
+        setTimeout(()=>b.classList.remove('wrong'),500);
+      }
+    });
+  });
+}
+
+/* ======================================================================
+   CARTESIAN GRID (Computación — Aprende demo + Exam question)
+   ====================================================================== */
+function buildCartesianGrid(){
+  const size = 7;
+  const gridWrap = document.createElement('div');
+  gridWrap.className='gridwrap';
+  const cells = {};
+  for(let y=size-1;y>=0;y--){
+    const row = document.createElement('div');
+    row.className='grow';
+    for(let x=0;x<size;x++){
+      const cell = document.createElement('div');
+      cell.className='gcell'+((x===0&&y===0)?' axis0':'');
+      cell.textContent = (x===0&&y===0) ? '0,0' : '';
+      cell.dataset.x=x; cell.dataset.y=y;
+      row.appendChild(cell);
+      cells[x+','+y]=cell;
+    }
+    gridWrap.appendChild(row);
+  }
+  return {gridWrap, cells};
+}
+
+function initCompGridDemo(){
+  const holder = document.getElementById('compGridDemo');
+  if(!holder) return;
+  holder.innerHTML = '';
+  const {gridWrap, cells} = buildCartesianGrid();
+  const label = document.createElement('div');
+  label.className='grid-target';
+  label.textContent = 'Toca cualquier casilla para ver sus coordenadas (x, y).';
+  const btn = document.createElement('button');
+  btn.className='btn-sm primary';
+  btn.textContent = '🎯 Nuevo reto';
+  const statusMsg = document.createElement('div');
+  statusMsg.className='grid-status';
+
+  let mode = 'free';
+  let target = null;
+
+  function paintFree(){
+    Object.values(cells).forEach(c=>{
+      if(!(c.dataset.x==='0' && c.dataset.y==='0')){ c.classList.remove('hit','miss'); c.textContent=''; }
+    });
+  }
+
+  Object.values(cells).forEach(c=>{
+    c.addEventListener('click',()=>{
+      const x=c.dataset.x, y=c.dataset.y;
+      if(mode==='free'){
+        paintFree();
+        c.textContent = 'x:'+x+' y:'+y;
+        c.classList.add('hit');
+        statusMsg.style.color = 'var(--ink)';
+        statusMsg.textContent = '📍 Seleccionaste x:'+x+', y:'+y;
+      } else if(mode==='challenge' && target){
+        if(x==target.x && y==target.y){
+          c.classList.add('hit'); c.textContent='✔';
+          statusMsg.style.color = 'var(--good)';
+          statusMsg.textContent = '¡Correcto! x:'+x+', y:'+y;
+          mode='free';
+        } else {
+          c.classList.add('miss');
+          statusMsg.style.color = 'var(--bad)';
+          statusMsg.textContent = '✘ Ahí no es. Sigue buscando: x:'+target.x+', y:'+target.y;
+          setTimeout(()=>c.classList.remove('miss'),500);
+        }
+      }
+    });
+  });
+
+  btn.addEventListener('click',()=>{
+    paintFree();
+    mode='challenge';
+    target = {x: Math.floor(Math.random()*7), y: Math.floor(Math.random()*7)};
+    if(target.x===0 && target.y===0) target.x=3;
+    label.textContent = '🎯 Encuentra la casilla: x:'+target.x+', y:'+target.y;
+    statusMsg.textContent = '';
+  });
+
+  holder.appendChild(label);
+  holder.appendChild(gridWrap);
+  holder.appendChild(btn);
+  holder.appendChild(statusMsg);
+}
+
+function buildExamGrid(container){
+  container.innerHTML = '';
+  const {gridWrap, cells} = buildCartesianGrid();
+  const target = {x: Math.floor(Math.random()*6)+1, y: Math.floor(Math.random()*6)+1};
+  const label = document.createElement('div');
+  label.className='grid-target';
+  label.textContent = '🎯 Toca la casilla: x:'+target.x+', y:'+target.y;
+  container.appendChild(label);
+  container.appendChild(gridWrap);
+  container.gridAnswered = false;
+  container.gridCorrect = false;
+  container.gridTarget = target;
+  Object.values(cells).forEach(c=>{
+    c.addEventListener('click',()=>{
+      if(container.gridAnswered) return;
+      container.gridAnswered = true;
+      const x=c.dataset.x, y=c.dataset.y;
+      if(x==target.x && y==target.y){
+        c.classList.add('hit'); container.gridCorrect = true;
+      } else {
+        c.classList.add('miss');
+        cells[target.x+','+target.y].classList.add('hit');
+      }
+    });
+  });
+}
+
+/* ======================================================================
+   EXAM ENGINE — 5 randomized variantes, different every time
+   ====================================================================== */
+let currentMatchSet = [];
+
+function renderExamVariantSelector(s){
+  const sel = document.getElementById('variantSelect');
+  sel.innerHTML = '';
+  for(let i=1;i<=5;i++){
+    const opt = document.createElement('option');
+    opt.value=i; opt.textContent='Variante '+i;
+    sel.appendChild(opt);
+  }
+  document.getElementById('examHeader').textContent = 'Colegio Bilingüe Holandes — '+s.name+' — Cuarto Primaria';
+  renderExam();
+}
+
+function renderExam(){
+  const s = SUBJECTS[currentSubjectId];
+  const mcSet = pickRandom(s.bank, Math.min(6, s.bank.length));
+  const fillSet = pickRandom(s.fillPool, Math.min(5, s.fillPool.length));
+  const matchSet = pickRandom(s.matchPairs, Math.min(5, s.matchPairs.length));
+  currentMatchSet = matchSet;
+
+  let html = `<div class="qz"><b>Parte 1 · Selección múltiple</b></div>`;
+  mcSet.forEach((item,i)=>{
+    const opts = shuffle(item.opts.map((o,j)=>({text:o, isCorrect:j===item.correct})));
+    const correctIdx = opts.findIndex(o=>o.isCorrect);
+    html += `<div class="qz" data-type="mc" data-correct="${correctIdx}">
+      <div class="qtext"><span class="qicon">${s.emoji}</span>${i+1}. ${item.q}</div>
+      ${opts.map((o,j)=>`<label style="display:block;margin-bottom:4px;font-size:14px;"><input type="radio" name="mcq${i}" value="${j}"> ${String.fromCharCode(97+j)}. ${o.text}</label>`).join('')}
+    </div>`;
+  });
+
+  html += `<div class="qz"><b>Parte 2 · Relaciona los pares</b></div>
+    <div class="qz" id="matchContainer"></div>`;
+
+  html += `<div class="qz"><b>Parte 3 · Completa la oración</b></div>`;
+  fillSet.forEach((item,i)=>{
+    html += `<div class="qz" data-type="fill" data-answer="${item.answer}">
+      <div class="qtext"><span class="qicon">✏️</span>${i+1}. ${item.sentence}</div>
+      <input type="text" class="fill-line" placeholder="Escribe tu respuesta">
+    </div>`;
+  });
+
+  if(s.passage){
+    html += `<div class="qz"><b>Parte 4 · Lectura y comprensión</b></div>
+      <div class="qz"><div class="qtext" style="white-space:pre-line;"><b>${s.passage.title}</b><br><br>${s.passage.text}</div></div>`;
+    s.passage.questions.forEach((pq,i)=>{
+      html += `<div class="qz" data-type="open" data-keyword="${(pq.keyword||'').replace(/"/g,'&quot;')}">
+        <div class="qtext"><span class="qicon">📖</span>${i+1}. ${pq.q}</div>
+        <input type="text" class="fill-line" placeholder="Escribe tu respuesta completa">
+      </div>`;
+    });
+  }
+
+  document.getElementById('examBody').innerHTML = html;
+  document.getElementById('examKey').classList.remove('show');
+
+  buildMatchGame(document.getElementById('matchContainer'), matchSet);
+}
+
+document.getElementById('variantSelect').addEventListener('change', renderExam);
+
+document.getElementById('checkExam').addEventListener('click',()=>{
+  let correct=0, total=0;
+  const mcAnswers=[];
+  document.querySelectorAll('#examBody .qz[data-type="mc"]').forEach((q)=>{
+    total++;
+    const sel = q.querySelector('input[type=radio]:checked');
+    if(sel && sel.value===q.dataset.correct) correct++;
+    const correctInput = q.querySelector(`input[value="${q.dataset.correct}"]`);
+    mcAnswers.push(correctInput ? correctInput.parentElement.textContent.trim() : '');
+  });
+  const fillAnswers = [];
+  document.querySelectorAll('#examBody .qz[data-type="fill"]').forEach(q=>{
+    total++;
+    const val = q.querySelector('input').value.trim().toLowerCase();
+    if(val === q.dataset.answer.toLowerCase()) correct++;
+    fillAnswers.push(q.dataset.answer);
+  });
+  const matchContainer = document.getElementById('matchContainer');
+  if(matchContainer){
+    total += matchContainer.matchTotal || 0;
+    correct += matchContainer.matchScore || 0;
+  }
+  let openCount = 0;
+  document.querySelectorAll('#examBody .qz[data-type="open"]').forEach(q=>{
+    total++; openCount++;
+    const val = q.querySelector('input').value.trim().toLowerCase();
+    const kw = (q.dataset.keyword||'').toLowerCase();
+    if(val.length>0 && (!kw || val.includes(kw))) correct++;
+  });
+
+  const key = document.getElementById('examKey');
+  let khtml = `<h3>🔑 Resultado</h3><p><b>Puntaje:</b> ${correct} / ${total}</p>`;
+  khtml += `<p><b>Selección múltiple — respuestas correctas:</b><br>` + mcAnswers.map((a,i)=>`${i+1}. ${a}`).join('<br>') + `</p>`;
+  khtml += `<p><b>Relaciona — pares correctos:</b><br>` + currentMatchSet.map(p=>`${p.term} → ${p.def}`).join('<br>') + `</p>`;
+  khtml += `<p><b>Completar — respuestas correctas:</b><br>` + fillAnswers.map((a,i)=>`${i+1}. ${a}`).join('<br>') + `</p>`;
+  if(openCount>0){
+    khtml += `<p><b>Lectura y comprensión:</b> revisa que tus respuestas sean oraciones completas relacionadas con el texto. ¡Comparte tus respuestas con papá o mamá para revisarlas juntos!</p>`;
+  }
+  key.innerHTML = khtml;
+  key.classList.add('show');
+  key.scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('resetExam').addEventListener('click', renderExam);
+
+/* ======================================================================
+   CALIGRAFIA (special)
+   ====================================================================== */
+const CAL_SENTENCES = [
+  "El municipio es la unidad administrativa más pequeña de Guatemala.",
+  "El alcalde es elegido por votación directa cada cuatro años.",
+  "La Constitución es la norma superior de nuestro país.",
+  "El Organismo Judicial se encarga de aplicar las leyes.",
+  "El Congreso de la República tiene ciento cincuenta y ocho diputados.",
+  "El radio une el centro con un punto de la circunferencia.",
+  "Un hexágono es un polígono de seis lados.",
+  "Las baterías recargables se llaman baterías secundarias.",
+  "Un evento en programación es una acción que el programa detecta.",
+  "La coordenada X indica si algo está a la derecha o a la izquierda.",
+  "Centroamérica tiene tres vertientes: Pacífico, Atlántico y Golfo de México.",
+  "El sonido se produce cuando un objeto vibra.",
+  "Una dieta balanceada debe ser variada y adecuada a cada persona.",
+  "En Kaqchikel, kej significa caballo.",
+];
+
+function openCal(){
+  currentSubjectId = null;
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('subjectView').style.display='none';
+  document.getElementById('reaView').style.display='none';
+  document.getElementById('spView').style.display='none';
+  document.getElementById('calView').style.display='block';
+  document.getElementById('backBtn').style.display='inline-block';
+  document.getElementById('headerTitle').textContent='✍️ Caligrafía — Cuarto Primaria';
+  document.getElementById('headerSubtitle').textContent='Dictado y copiado — repasando vocabulario de las otras materias';
+  document.getElementById('appHeader').style.background='#b1560c';
+
+  const copyList = document.getElementById('calCopiadoList');
+  copyList.innerHTML = CAL_SENTENCES.map((s,i)=>`<div class="dictado-card"><b>${i+1}.</b><div class="txt">${s}</div><label style="font-size:13px;"><input type="checkbox"> Ya la copié</label></div>`).join('');
+
+  const dictList = document.getElementById('calDictadoList');
+  dictList.innerHTML = CAL_SENTENCES.map((s,i)=>`<div class="dictado-card">
+      <b>${i+1}.</b>
+      <button class="btn-sm primary" onclick="calSay(${JSON.stringify(s)})">▶ Escuchar</button>
+      <button class="btn-sm" onclick="calToggle('calr${i}')">👀 Mostrar</button>
+      <div class="txt" id="calr${i}" style="display:none;color:#2f7a4f;">${s}</div>
+    </div>`).join('');
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function calTab(tabId, btn){
+  document.querySelectorAll('#calView .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#calView .panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+function calToggle(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = (el.style.display==='block') ? 'none' : 'block';
+}
+
+let calVoices = [];
+function loadCalVoices(){ calVoices = speechSynthesis.getVoices(); }
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = loadCalVoices; loadCalVoices(); }
+function calSay(text){
+  if(!('speechSynthesis' in window)){ alert('Este navegador no soporta lectura en voz alta. Usa Google Chrome.'); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'es-ES'; u.rate = 0.85;
+  const esVoice = calVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('es'));
+  if(esVoice) u.voice = esVoice;
+  speechSynthesis.speak(u);
+}
+
+/* ======================================================================
+   READING (special, interactive, Speaking-style) — audio vocab, sentences,
+   oral quiz and a rich listening/reading exam. Randomized every attempt.
+   ====================================================================== */
+let reaVoices = [];
+let reaSelectedVoice = null;
+function reaLoadVoices(){
+  reaVoices = speechSynthesis.getVoices();
+  reaSelectedVoice = reaVoices.find(v=>v.lang==='en-US') || reaVoices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en')) || null;
+}
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = reaLoadVoices; reaLoadVoices(); }
+function reaSpeak(text, el){
+  if(!('speechSynthesis' in window)){ alert('Este navegador no soporta lectura en voz alta. Usa Google Chrome.'); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const rateSel = document.getElementById('reaRate');
+  u.rate = rateSel ? parseFloat(rateSel.value) : 0.85;
+  u.lang = 'en-US';
+  if(reaSelectedVoice) u.voice = reaSelectedVoice;
+  if(el){ u.onstart=()=>el.classList.add('playing'); u.onend=()=>el.classList.remove('playing'); }
+  speechSynthesis.speak(u);
+}
+
+function openRea(){
+  currentSubjectId = null;
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('subjectView').style.display='none';
+  document.getElementById('calView').style.display='none';
+  document.getElementById('spView').style.display='none';
+  document.getElementById('reaView').style.display='block';
+  document.getElementById('backBtn').style.display='inline-block';
+  document.getElementById('headerTitle').textContent='📖 Reading — Cuarto Primaria';
+  document.getElementById('headerSubtitle').textContent='Unit 11 Hands Can Talk & Unit 12 Siestas';
+  document.getElementById('appHeader').style.background='#2471a3';
+
+  document.querySelectorAll('#reaTabs .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===0);
+    b.style.background = i===0 ? '#2471a3' : '#fff';
+    b.style.borderColor = '#2471a3';
+    b.style.color = i===0 ? '#fff' : '#2471a3';
+  });
+  document.querySelectorAll('#reaView .panel').forEach((p,i)=>p.classList.toggle('active', i===0));
+
+  buildReaVocab();
+  buildReaSentences();
+  reaBuildQuizPool();
+  reaShowQuizItem();
+  buildReaExam();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.querySelectorAll('#reaTabs .tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#reaTabs .tab-btn').forEach(b=>{
+      const isActive = b===btn;
+      b.classList.toggle('active', isActive);
+      b.style.background = isActive ? '#2471a3' : '#fff';
+      b.style.borderColor = '#2471a3';
+      b.style.color = isActive ? '#fff' : '#2471a3';
+    });
+    document.querySelectorAll('#reaView .panel').forEach(p=>p.classList.toggle('active', p.id===btn.dataset.rtab));
+  });
+});
+
+function buildReaVocab(){
+  const grid = document.getElementById('reaVocabGrid');
+  grid.innerHTML='';
+  REA_VOCAB.forEach(item=>{
+    const card = document.createElement('div');
+    card.className='vocab-card';
+    card.innerHTML = `<div class="vicon">${item.icon}</div>
+      <div class="ven">${item.en}</div>
+      <div class="ves">${item.es}</div>
+      <div class="vex">💬 "${item.ex}"<div class="vnote">👉 ${item.note}</div></div>`;
+    card.addEventListener('click',()=>reaSpeak(item.en, card));
+    grid.appendChild(card);
+  });
+}
+
+function buildReaSentences(){
+  const list = document.getElementById('reaSentList');
+  list.innerHTML='';
+  REA_SENTENCES.forEach(item=>{
+    const box = document.createElement('div');
+    box.className='sentence-item';
+    box.dataset.revealed='0';
+    box.innerHTML = `<div class="stxt"><span class="sesp" style="display:block;font-style:normal;color:var(--ink);font-size:15px;">🇬🇹 ${item.es}</span><span class="sen-en" style="display:none;color:#2471a3;font-weight:700;margin-top:4px;">🇬🇧 ${item.en}</span></div><button class="play-btn">👁</button>`;
+    const revealBtn = box.querySelector('.play-btn');
+    const enEl = box.querySelector('.sen-en');
+    const fn = ()=>{
+      if(box.dataset.revealed==='0'){
+        box.dataset.revealed='1';
+        enEl.style.display='block';
+        revealBtn.textContent='🔊';
+      }
+      reaSpeak(item.en, box);
+    };
+    revealBtn.addEventListener('click', e=>{ e.stopPropagation(); fn(); });
+    box.addEventListener('click', fn);
+    list.appendChild(box);
+  });
+}
+
+let reaQuizPool = [];
+let reaQuizIndex = 0;
+function reaBuildQuizPool(){
+  reaQuizPool = shuffle(REA_VOCAB.map(v=>({...v})));
+  reaQuizIndex = 0;
+}
+function reaShowQuizItem(){
+  if(reaQuizIndex >= reaQuizPool.length){ reaBuildQuizPool(); }
+  const item = reaQuizPool[reaQuizIndex];
+  document.getElementById('reaQuizWord').textContent = '🇬🇹 ' + item.es;
+  document.getElementById('reaQuizUnit').textContent = item.unit;
+  document.getElementById('reaQuizRevealTxt').textContent = '';
+  document.getElementById('reaQuizProgress').textContent = `Palabra ${reaQuizIndex+1} de ${reaQuizPool.length}`;
+  document.getElementById('reaQuizReveal').disabled = false;
+  document.getElementById('reaQuizPlay').disabled = true;
+}
+document.getElementById('reaQuizReveal').addEventListener('click', ()=>{
+  const item = reaQuizPool[reaQuizIndex];
+  document.getElementById('reaQuizRevealTxt').textContent = '🇬🇧 ' + item.en;
+  document.getElementById('reaQuizPlay').disabled = false;
+  document.getElementById('reaQuizReveal').disabled = true;
+  reaSpeak(item.en);
+});
+document.getElementById('reaQuizPlay').addEventListener('click', ()=>reaSpeak(reaQuizPool[reaQuizIndex].en));
+document.getElementById('reaQuizNext').addEventListener('click', ()=>{
+  reaQuizIndex++;
+  reaShowQuizItem();
+});
+
+let reaScore = 0, reaScorable = 0;
+function reaUpdateScore(){
+  const answered = document.querySelectorAll('#reaExamContainer .exam-q[data-answered="1"]').length;
+  if(answered >= reaScorable){
+    const bar = document.getElementById('reaExamScoreBar');
+    const pct = Math.round((reaScore/reaScorable)*100);
+    bar.textContent = `📊 Puntaje: ${reaScore} / ${reaScorable} (${pct}%)`;
+    bar.style.display = 'block';
+  }
+}
+
+let currentReaListeningSet = [];
+let currentReaChoiceSet = [];
+let currentReaFillSet = [];
+let currentReaPassage = null;
+let currentReaTranslateSet = [];
+
+function buildReaExam(){
+  const container = document.getElementById('reaExamContainer');
+  container.innerHTML = '';
+  document.getElementById('reaExamScoreBar').style.display = 'none';
+  document.getElementById('reaExamKey').style.display = 'none';
+  reaScore = 0;
+
+  const listeningSet = pickRandom(REA_VOCAB, 5);
+  const choiceSet = pickRandom(REA_CHOICE, 5);
+  const fillSet = pickRandom(REA_FILL, 4);
+  const passage = pickRandom(REA_PASSAGES, 1)[0];
+  const translateSet = pickRandom(REA_VOCAB, 6);
+  reaScorable = listeningSet.length + choiceSet.length + fillSet.length + passage.questions.length + 1 + translateSet.length;
+  currentReaListeningSet = listeningSet;
+  currentReaChoiceSet = choiceSet;
+  currentReaFillSet = fillSet;
+  currentReaPassage = passage;
+  currentReaTranslateSet = translateSet;
+
+  // PARTE 1: Listening
+  const part1 = document.createElement('div');
+  part1.className='exam-part';
+  part1.innerHTML = `<div class="exam-part-label">Parte 1 · Listening — escucha y elige</div>`;
+  listeningSet.forEach((item,idx)=>{
+    const distractors = shuffle(REA_VOCAB.filter(v=>v.es!==item.es)).slice(0,2).map(v=>v.es);
+    const opts = shuffle([item.es, ...distractors]);
+    const correctIdx = opts.indexOf(item.es);
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='mc';
+    qDiv.dataset.correctIdx=String(correctIdx);
+    qDiv.dataset.correctText=item.es;
+    qDiv.innerHTML = `<div class="exam-q-text"><button class="mini-play" data-audio="${item.ex.replace(/"/g,'&quot;')}">▶</button>${idx+1}. ¿Qué significa "${item.en}"?</div>
+      <div class="exam-options">${opts.map((o,i)=>`<button data-idx="${i}">${o}</button>`).join('')}</div>
+      <div class="exam-feedback"></div>`;
+    qDiv.querySelector('.mini-play').addEventListener('click', e=>reaSpeak(e.currentTarget.dataset.audio));
+    qDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(qDiv.dataset.answered) return;
+        qDiv.dataset.answered='1';
+        const chosen = parseInt(btn.dataset.idx);
+        qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+          if(i===correctIdx) b.classList.add('correct');
+          else if(i===chosen) b.classList.add('incorrect');
+        });
+        const fb = qDiv.querySelector('.exam-feedback');
+        if(chosen===correctIdx){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+        else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+        reaUpdateScore();
+      });
+    });
+    part1.appendChild(qDiv);
+  });
+  container.appendChild(part1);
+
+  // PARTE 2: Choose the correct words
+  const part1b = document.createElement('div');
+  part1b.className='exam-part';
+  part1b.innerHTML = `<div class="exam-part-label">Parte 2 · Choose the correct words</div>`;
+  choiceSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='choice';
+    qDiv.dataset.correctIdx=String(item.correct);
+    qDiv.dataset.correctText=item.options[item.correct];
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.sentence}</div>
+      <div class="exam-options">${item.options.map((o,i)=>`<button data-idx="${i}">${o}</button>`).join('')}</div>
+      <div class="exam-feedback"></div>`;
+    qDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(qDiv.dataset.answered) return;
+        qDiv.dataset.answered='1';
+        const chosen = parseInt(btn.dataset.idx);
+        qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+          if(i===item.correct) b.classList.add('correct');
+          else if(i===chosen) b.classList.add('incorrect');
+        });
+        const fb = qDiv.querySelector('.exam-feedback');
+        if(chosen===item.correct){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+        else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+        reaUpdateScore();
+      });
+    });
+    part1b.appendChild(qDiv);
+  });
+  container.appendChild(part1b);
+
+  // PARTE 3: Complete the sentence
+  const part2 = document.createElement('div');
+  part2.className='exam-part';
+  part2.innerHTML = `<div class="exam-part-label">Parte 3 · Complete the sentence</div>`;
+  fillSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='fill';
+    qDiv.dataset.answer=item.answer;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.sentence}</div>
+      <input type="text" class="exam-fill-input" placeholder="Escribe tu respuesta">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      if(val===item.answer.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+item.answer; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      reaUpdateScore();
+    });
+    part2.appendChild(qDiv);
+  });
+  container.appendChild(part2);
+
+  // PARTE 4: Read and answer + missing-info meta question
+  const part3 = document.createElement('div');
+  part3.className='exam-part';
+  part3.innerHTML = `<div class="exam-part-label">Parte 4 · Read and answer — ${passage.title}</div>
+    <div class="exam-passage"><button class="mini-play" id="reaPassagePlay">▶ Escuchar el texto</button><br><br>${passage.text}</div>`;
+  part3.querySelector('#reaPassagePlay').addEventListener('click', ()=>reaSpeak(passage.text));
+
+  const missingShuffled = shuffle(REA_MISSING_OPTIONS.map((txt,i)=>({txt, isCorrect:i===passage.missing})));
+  const missingCorrectIdx = missingShuffled.findIndex(o=>o.isCorrect);
+  const metaDiv = document.createElement('div');
+  metaDiv.className='exam-q';
+  metaDiv.dataset.type='meta';
+  metaDiv.dataset.correctIdx=String(missingCorrectIdx);
+  metaDiv.dataset.correctText=missingShuffled[missingCorrectIdx].txt;
+  metaDiv.innerHTML = `<div class="exam-q-text">1. ¿Qué información falta en este texto?</div>
+    <div class="exam-options">${missingShuffled.map((o,i)=>`<button data-idx="${i}">${o.txt}</button>`).join('')}</div>
+    <div class="exam-feedback"></div>`;
+  metaDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(metaDiv.dataset.answered) return;
+      metaDiv.dataset.answered='1';
+      const chosen = parseInt(btn.dataset.idx);
+      metaDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+        if(i===missingCorrectIdx) b.classList.add('correct');
+        else if(i===chosen) b.classList.add('incorrect');
+      });
+      const fb = metaDiv.querySelector('.exam-feedback');
+      if(chosen===missingCorrectIdx){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+      else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+      reaUpdateScore();
+    });
+  });
+  part3.appendChild(metaDiv);
+
+  passage.questions.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='open';
+    qDiv.dataset.answer=item.a;
+    qDiv.dataset.hint=item.hint;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+2}. ${item.q}</div>
+      <input type="text" class="exam-fill-input" style="width:280px" placeholder="Escribe una oración completa">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      const wordCount = val.split(/\s+/).filter(Boolean).length;
+      if(val.includes(item.a)){
+        if(wordCount<3){ fb.textContent='✔ Correcto, pero intenta responder con oración completa la próxima vez.'; fb.className='exam-feedback good'; }
+        else{ fb.textContent='✔ ¡Correcto! (oración completa)'; fb.className='exam-feedback good'; }
+        reaScore++;
+      }
+      else{ fb.textContent=`✘ Idea esperada: "${item.a}" ${item.hint}. Responde con oración completa.`; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      reaUpdateScore();
+    });
+    part3.appendChild(qDiv);
+  });
+  container.appendChild(part3);
+
+  // PARTE 5: Write the meaning in English (vocabulario español -> inglés)
+  const part4 = document.createElement('div');
+  part4.className='exam-part';
+  part4.innerHTML = `<div class="exam-part-label">Parte 5 · Write the meaning in English</div>
+    <div class="exam-q-text" style="margin-bottom:6px;">Escribe el significado en inglés de las siguientes palabras/frases:</div>`;
+  translateSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='translate';
+    qDiv.dataset.answer=item.en;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.es}</div>
+      <input type="text" class="exam-fill-input" placeholder="Write in English">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      if(val===item.en.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+item.en; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      reaUpdateScore();
+    });
+    part4.appendChild(qDiv);
+  });
+  container.appendChild(part4);
+}
+document.getElementById('reaExamReset').addEventListener('click', buildReaExam);
+
+function checkAllReaExam(){
+  document.querySelectorAll('#reaExamContainer .exam-q[data-type="mc"], #reaExamContainer .exam-q[data-type="choice"], #reaExamContainer .exam-q[data-type="meta"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const correctIdx = qDiv.dataset.correctIdx;
+      qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{ if(String(i)===correctIdx) b.classList.add('correct'); });
+      const fb = qDiv.querySelector('.exam-feedback');
+      fb.textContent='○ No la respondiste — la respuesta correcta está en verde.';
+      fb.className='exam-feedback bad';
+    }
+  });
+  document.querySelectorAll('#reaExamContainer .exam-q[data-type="fill"], #reaExamContainer .exam-q[data-type="translate"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const input = qDiv.querySelector('input');
+      const chk = qDiv.querySelector('.exam-check-btn');
+      const fb = qDiv.querySelector('.exam-feedback');
+      const val = input.value.trim().toLowerCase();
+      if(val===qDiv.dataset.answer.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; reaScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+qDiv.dataset.answer; fb.className='exam-feedback bad'; }
+      input.disabled=true; if(chk) chk.disabled=true;
+    }
+  });
+  document.querySelectorAll('#reaExamContainer .exam-q[data-type="open"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const input = qDiv.querySelector('input');
+      const chk = qDiv.querySelector('.exam-check-btn');
+      const fb = qDiv.querySelector('.exam-feedback');
+      const val = input.value.trim().toLowerCase();
+      const expected = qDiv.dataset.answer.toLowerCase();
+      if(val.includes(expected)){ fb.textContent='✔ ¡Correcto! (contiene la idea clave)'; fb.className='exam-feedback good'; reaScore++; }
+      else{ fb.textContent=`✘ Idea clave esperada: "${qDiv.dataset.answer}" ${qDiv.dataset.hint||''}`; fb.className='exam-feedback bad'; }
+      input.disabled=true; if(chk) chk.disabled=true;
+    }
+  });
+
+  const bar = document.getElementById('reaExamScoreBar');
+  const pct = reaScorable ? Math.round((reaScore/reaScorable)*100) : 0;
+  bar.textContent = `📊 Puntaje final: ${reaScore} / ${reaScorable} (${pct}%)`;
+  bar.style.display = 'block';
+
+  const key = document.getElementById('reaExamKey');
+  let khtml = '<h3 style="margin-top:0;color:#3f356a;">🔑 Respuestas correctas</h3>';
+  khtml += '<p><b>Parte 1 · Listening:</b><br>' + currentReaListeningSet.map((it,i)=>`${i+1}. ${it.es}`).join('<br>') + '</p>';
+  khtml += '<p><b>Parte 2 · Choose the correct words:</b><br>' + currentReaChoiceSet.map((it,i)=>`${i+1}. ${it.options[it.correct]}`).join('<br>') + '</p>';
+  khtml += '<p><b>Parte 3 · Complete the sentence:</b><br>' + currentReaFillSet.map((it,i)=>`${i+1}. ${it.answer}`).join('<br>') + '</p>';
+  if(currentReaPassage){
+    khtml += '<p><b>Parte 4 · Read and answer:</b><br>1. ' + REA_MISSING_OPTIONS[currentReaPassage.missing] + ' (información que falta)<br>' + currentReaPassage.questions.map((it,i)=>`${i+2}. ${it.a} ${it.hint}`).join('<br>') + '</p>';
+  }
+  khtml += '<p><b>Parte 5 · Write the meaning in English:</b><br>' + currentReaTranslateSet.map((it,i)=>`${i+1}. ${it.es} → ${it.en}`).join('<br>') + '</p>';
+  key.innerHTML = khtml;
+  key.style.display = 'block';
+  key.scrollIntoView({behavior:'smooth'});
+}
+document.getElementById('reaExamCheckAll').addEventListener('click', checkAllReaExam);
+
+/* ======================================================================
+   SPEAKING (special, interactive, integrated in-app) — Unit 7 Giving
+   Directions & Unit 8 Giving Instructions. Same validated methodology as
+   Reading: warm-up vocab -> inverted oral quiz -> sentence drill -> exam
+   at the end, randomized every attempt.
+   ====================================================================== */
+const SP_VOCAB = [
+  {en:"hard to find", es:"difícil de encontrar", icon:"🔍", unit:"7", ex:"This street is hard to find at night.", note:"Se usa cuando un lugar es complicado de localizar."},
+  {en:"pass", es:"pasar (por un lugar)", icon:"➡️", unit:"7", ex:"Pass the bakery and turn left.", note:"Caminas junto a un lugar sin detenerte, antes de seguir a otro punto."},
+  {en:"keep going", es:"seguir / continuar", icon:"🚶", unit:"7", ex:"Keep going until you see the park.", note:"Sigue caminando en la misma dirección sin doblar todavía."},
+  {en:"keep walking", es:"seguir caminando", icon:"🚶‍♂️", unit:"7", ex:"Keep walking two more blocks.", note:"Igual que 'keep going', pero enfatiza que es a pie."},
+  {en:"on the corner", es:"en la esquina", icon:"📍", unit:"7", ex:"The bank is on the corner of Pike Street.", note:"Ubica algo justo donde se cruzan dos calles."},
+  {en:"turn left", es:"dar vuelta a la izquierda", icon:"↩️", unit:"7", ex:"Turn left at the traffic light.", note:"Instrucción directa para cambiar de dirección hacia la izquierda."},
+  {en:"turn right", es:"dar vuelta a la derecha", icon:"↪️", unit:"7", ex:"Turn right at the bakery.", note:"Igual que 'turn left' pero hacia el lado derecho."},
+  {en:"make a left", es:"dar vuelta a la izquierda", icon:"🔀", unit:"7", ex:"Make a left at the stop sign.", note:"Otra forma de decir 'turn left', más informal."},
+  {en:"make a right", es:"dar vuelta a la derecha", icon:"🔁", unit:"7", ex:"Make a right after the school.", note:"Otra forma de decir 'turn right'."},
+  {en:"next to", es:"al lado de", icon:"📌", unit:"7", ex:"The school is next to the drugstore.", note:"Dos lugares están pegados, sin nada en medio."},
+  {en:"across from", es:"enfrente de (cruzando la calle)", icon:"🔄", unit:"7", ex:"The mall is across from the apartment building.", note:"Hay una calle de por medio; están frente a frente."},
+  {en:"between", es:"entre", icon:"↔️", unit:"7", ex:"The pot is between the broom and the table.", note:"Algo está en medio de otras dos cosas."},
+  {en:"go straight up", es:"seguir derecho hacia arriba", icon:"⬆️", unit:"7", ex:"Go straight up Pike Street.", note:"Continuar sin doblar, 'hacia arriba' en el mapa."},
+  {en:"go straight down", es:"seguir derecho hacia abajo", icon:"⬇️", unit:"7", ex:"Go straight down Anderson Avenue.", note:"Igual que 'go straight up' pero en dirección contraria."},
+  {en:"traffic light", es:"semáforo", icon:"🚦", unit:"7", ex:"Turn left at the traffic light.", note:"Punto de referencia más común en direcciones."},
+  {en:"stop sign", es:"señal de alto", icon:"🛑", unit:"7", ex:"Make a left at the stop sign.", note:"Punto de referencia común, como el semáforo."},
+  {en:"parking lot", es:"estacionamiento", icon:"🅿️", unit:"7", ex:"Pass the parking lot on your left.", note:"Se usa como punto de referencia en el camino."},
+  {en:"shopping mall", es:"centro comercial", icon:"🏬", unit:"7", ex:"The shopping mall is across from the apartment building.", note:"Aparece en casi todas las historias de 'Giving Directions'."},
+  {en:"apartment building", es:"edificio de apartamentos", icon:"🏢", unit:"7", ex:"The mall is across from the apartment building.", note:"Punto de referencia común en los mapas del libro."},
+  {en:"bookstore", es:"librería", icon:"📚", unit:"7", ex:"Go straight until you see a bookstore.", note:"'Sigue hasta ver X lugar'."},
+  {en:"bakery", es:"panadería", icon:"🥖", unit:"7", ex:"You can see the bakery on your left.", note:"Uno de los lugares más usados como referencia."},
+  {en:"bank", es:"banco", icon:"🏦", unit:"7", ex:"The bank is next to the bakery.", note:"Casi siempre aparece cerca de otros negocios en los mapas."},
+  {en:"drugstore", es:"farmacia", icon:"💊", unit:"7", ex:"The school is next to the drugstore.", note:"Se usa para ubicar la posición final de un lugar."},
+  {en:"laundromat", es:"lavandería", icon:"🧺", unit:"7", ex:"This is how to get to the laundromat.", note:"Tema principal de uno de los speech frames del libro."},
+  {en:"hair salon", es:"salón de belleza", icon:"💇", unit:"7", ex:"Pass the hair salon on your left.", note:"Punto de referencia visual en el mapa de 'How to Get to My House'."},
+  {en:"gas station", es:"gasolinera", icon:"⛽", unit:"7", ex:"Turn right at the gas station.", note:"Puede aparecer como opción en 'Names of Places'."},
+  {en:"grocery store", es:"tienda de abarrotes", icon:"🛒", unit:"7", ex:"The grocery store is next to the restaurant.", note:"Lugar común en los mapas de compras y direcciones."},
+  {en:"hospital", es:"hospital", icon:"🏥", unit:"7", ex:"The hospital is across from the park.", note:"Aparece en la lista de 'Names of Places'."},
+  {en:"auto repair shop", es:"taller mecánico", icon:"🔧", unit:"7", ex:"Go straight up and pass the auto repair shop.", note:"Se usa en los ejercicios de 'Speaking Practice'."},
+  {en:"aquarium", es:"acuario", icon:"🐠", unit:"7", ex:"Make a left at the first corner to get to the aquarium.", note:"Aparece como destino en los ejercicios de práctica."},
+  {en:"post office", es:"oficina de correos", icon:"📮", unit:"7", ex:"Make a right at the stop sign to get to the post office.", note:"Aparece en los ejercicios de listening del libro."},
+  {en:"bake", es:"hornear", icon:"🍞", unit:"8", ex:"Bake it for 10 minutes until the cheese melts.", note:"Cocinar dentro del horno, con calor seco."},
+  {en:"boil", es:"hervir", icon:"♨️", unit:"8", ex:"Pour water into the pot and boil for 30 minutes.", note:"Cocinar algo en agua muy caliente que hace burbujas."},
+  {en:"wash", es:"lavar", icon:"🧼", unit:"8", ex:"Wash the vegetables before cutting them.", note:"Primer paso típico en muchas recetas."},
+  {en:"fry", es:"freír", icon:"🍳", unit:"8", ex:"Fry the eggs in a pan.", note:"Cocinar algo en aceite caliente."},
+  {en:"mix", es:"mezclar", icon:"🥣", unit:"8", ex:"Mix the flour and milk in a bowl.", note:"Combinar dos o más ingredientes juntos."},
+  {en:"cut", es:"cortar", icon:"🔪", unit:"8", ex:"Cut all the vegetables.", note:"Verbo general para cortar con cuchillo."},
+  {en:"pour", es:"verter / servir", icon:"🫗", unit:"8", ex:"Pour water into the pot.", note:"Verter un líquido de un recipiente a otro."},
+  {en:"break", es:"romper (un huevo)", icon:"🥚", unit:"8", ex:"Break two eggs into the bowl.", note:"Abrir un huevo antes de cocinar."},
+  {en:"peel", es:"pelar", icon:"🍌", unit:"8", ex:"Peel the banana before eating it.", note:"Quitar la cáscara de una fruta o verdura."},
+  {en:"chop", es:"picar", icon:"🥕", unit:"8", ex:"Chop the vegetables into small pieces.", note:"Cortar en pedazos más pequeños que con 'cut'."},
+  {en:"spread", es:"untar / esparcir", icon:"🧈", unit:"8", ex:"Spread some sauce on the biscuit.", note:"Extender algo sobre una superficie plana."},
+  {en:"freeze", es:"congelar", icon:"❄️", unit:"8", ex:"Freeze the ice cream for two hours.", note:"Poner algo en el congelador."},
+  {en:"whip", es:"batir", icon:"🥄", unit:"8", ex:"Whip the cream until it's fluffy.", note:"Batir rápido para que quede esponjoso."},
+  {en:"roll out", es:"extender (masa)", icon:"🍕", unit:"8", ex:"Roll out the dough for the pizza.", note:"Aplanar la masa con un rodillo antes de hornear."},
+  {en:"taste", es:"probar (sabor)", icon:"👅", unit:"8", ex:"Taste the soup before serving it.", note:"Probar la comida para ver si necesita más sal."},
+  {en:"add", es:"agregar", icon:"➕", unit:"8", ex:"Add salt and pepper.", note:"Incluir un ingrediente más."},
+  {en:"melt", es:"derretir", icon:"🧊", unit:"8", ex:"Bake it until the cheese melts.", note:"Algo sólido se vuelve líquido por el calor."},
+  {en:"stir", es:"revolver", icon:"🥄", unit:"8", ex:"Stir the soup with a spoon.", note:"Mover la comida en círculos con una cuchara."},
+  {en:"slice", es:"rebanar", icon:"🔪", unit:"8", ex:"Slice the bread before serving.", note:"Cortar en rebanadas delgadas."},
+  {en:"dice", es:"cortar en cubitos", icon:"🎲", unit:"8", ex:"Dice the onion into small cubes.", note:"Cortar un ingrediente en cuadritos pequeños."},
+  {en:"steam", es:"cocer al vapor", icon:"💨", unit:"8", ex:"Steam the broccoli for five minutes.", note:"Cocinar con el vapor del agua."},
+  {en:"roast", es:"asar (al horno)", icon:"🍗", unit:"8", ex:"Roast the chicken for one hour.", note:"Cocinar carne o vegetales enteros en el horno."},
+  {en:"weigh", es:"pesar", icon:"⚖️", unit:"8", ex:"Weigh the flour before mixing it.", note:"Medir el peso exacto de un ingrediente."},
+  {en:"dip", es:"remojar / sumergir", icon:"🥫", unit:"8", ex:"Dip the bread in the sauce.", note:"Meter un alimento brevemente en un líquido."},
+  {en:"grate", es:"rallar", icon:"🧀", unit:"8", ex:"Grate the cheese on top.", note:"Convertir algo sólido en trozos muy pequeños con un rallador."},
+  {en:"beat", es:"batir (huevos)", icon:"🍥", unit:"8", ex:"Beat the eggs in a bowl.", note:"Parecido a 'whip', pero con huevos."},
+  {en:"knead", es:"amasar", icon:"🥖", unit:"8", ex:"Knead the dough for five minutes.", note:"Trabajar la masa con las manos."},
+  {en:"drain", es:"escurrir", icon:"🚰", unit:"8", ex:"Drain the pasta after boiling it.", note:"Quitar el agua sobrante de algo hervido."},
+  {en:"garnish", es:"decorar (un plato)", icon:"🌿", unit:"8", ex:"Garnish the plate with parsley.", note:"Agregar un toque final decorativo a la comida."},
+  {en:"season", es:"sazonar", icon:"🧂", unit:"8", ex:"Season the chicken with salt and pepper.", note:"Agregar sal o especias para dar sabor."},
+  {en:"biscuit", es:"galleta / bizcocho", icon:"🍪", unit:"8", ex:"Put some cheese across the biscuit.", note:"Palabra clave del speech 'Mummy Pizza'."},
+  {en:"ingredients", es:"ingredientes", icon:"📋", unit:"8", ex:"These are the ingredients for the recipe.", note:"Todo lo que se necesita para cocinar algo."},
+  {en:"recipe", es:"receta", icon:"📖", unit:"8", ex:"This is my quick and easy recipe.", note:"El conjunto completo de pasos e ingredientes."},
+  {en:"pot", es:"olla", icon:"🍲", unit:"8", ex:"Put the chicken and vegetables in a pot.", note:"Recipiente para hervir sopas y guisos."},
+  {en:"bowl", es:"tazón / bol", icon:"🥣", unit:"8", ex:"In a bowl, add the flour and milk.", note:"Recipiente para mezclar ingredientes."},
+  {en:"oven", es:"horno", icon:"🔥", unit:"8", ex:"Put the pizza in the oven.", note:"Aparato donde se hornean o asan los alimentos."},
+];
+
+const SP_SENTENCES = [
+  {en:"This is how to get to the shopping mall.", es:"Así se llega al centro comercial."},
+  {en:"I'll tell you how to get to the school.", es:"Te diré cómo llegar a la escuela."},
+  {en:"Go straight up the stairs.", es:"Sube las escaleras derecho."},
+  {en:"Turn left at the traffic light.", es:"Dobla a la izquierda en el semáforo."},
+  {en:"Pass the parking lot on your left.", es:"Pasa el estacionamiento a tu izquierda."},
+  {en:"Keep going down Greenside Avenue.", es:"Sigue por la avenida Greenside."},
+  {en:"The mall is across from the apartment building.", es:"El centro comercial está enfrente del edificio de apartamentos."},
+  {en:"You can see the hair salon on your left.", es:"Puedes ver el salón de belleza a tu izquierda."},
+  {en:"The school is next to the drugstore.", es:"La escuela está al lado de la farmacia."},
+  {en:"Turn right at the bakery.", es:"Dobla a la derecha en la panadería."},
+  {en:"You can't miss it.", es:"No te lo puedes perder."},
+  {en:"You will find the school on your right.", es:"Encontrarás la escuela a tu derecha."},
+  {en:"This is how to make chicken soup.", es:"Así se hace sopa de pollo."},
+  {en:"Let me tell you how to make pizza.", es:"Te voy a decir cómo hacer pizza."},
+  {en:"Cut all the vegetables.", es:"Corta todas las verduras."},
+  {en:"Put the chicken and the vegetables in a pot.", es:"Pon el pollo y las verduras en una olla."},
+  {en:"Add salt and pepper.", es:"Agrega sal y pimienta."},
+  {en:"Pour water into the pot and boil for 30 minutes.", es:"Vierte agua en la olla y hierve por 30 minutos."},
+  {en:"Spread some sauce on the biscuit.", es:"Unta un poco de salsa en la galleta."},
+  {en:"Bake it for 10 minutes until the cheese melts.", es:"Hornéalo por 10 minutos hasta que el queso se derrita."},
+  {en:"Now it's time to enjoy your meal.", es:"Ahora es hora de disfrutar tu comida."},
+];
+
+const SP_FILL = [
+  {sentence:"Go straight ___ the stairs. (up/down)", answer:"up"},
+  {sentence:"The bank is next ___ the bakery. (to/at)", answer:"to"},
+  {sentence:"___ some sauce on the biscuit. (Spread/Pour)", answer:"spread"},
+  {sentence:"___ the vegetables before cooking them. (Chop/Freeze)", answer:"chop"},
+  {sentence:"The mall is ___ from the apartment building, across the street. (next to/across)", answer:"across"},
+  {sentence:"___ the eggs into the bowl. (Break/Peel)", answer:"break"},
+  {sentence:"Keep ___ down Greenside Avenue. (going/stopping)", answer:"going"},
+  {sentence:"___ it for 10 minutes until the cheese melts. (Bake/Freeze)", answer:"bake"},
+  {sentence:"The school is ___ to the drugstore. (next/across)", answer:"next"},
+  {sentence:"Pour water into the pot and ___ for 30 minutes. (boil/fry)", answer:"boil"},
+];
+
+const SP_PASSAGES = [
+  {title:"Getting to the Laundromat",
+   text:"This is how to get to the laundromat. Go straight up Pike Street. You can see the bank on your left. Pass the drugstore. Then, turn right at Anderson Avenue. Keep going down Anderson Avenue. The laundromat is across from the shopping mall.",
+   questions:[
+     {q:"Where does the person start?", a:"pike street", hint:"(street name)"},
+     {q:"What do they pass on the way?", a:"drugstore", hint:"(a place)"},
+     {q:"Where is the laundromat located?", a:"across from the shopping mall", hint:"(location)"}
+   ],
+   missing:2},
+  {title:"Mummy Pizza",
+   text:"This is how to make Mummy Pizza. Spread some pizza sauce on a round biscuit. Put two olives on it. Put some cheese across the biscuit. Bake it for 10 minutes until the cheese melts. Now, enjoy the Mummy Pizza for a spooky Halloween!",
+   questions:[
+     {q:"What shape is the biscuit?", a:"round", hint:"(shape)"},
+     {q:"What do you put on the biscuit as eyes?", a:"olives", hint:"(ingredient)"},
+     {q:"How long do you bake it?", a:"10 minutes", hint:"(time)"}
+   ],
+   missing:2},
+  {title:"Planning a Halloween Party",
+   text:"This is how to plan a Halloween party. Step 1, choose a date for the party. Step 2, make invitation cards and send them out. Step 3, go grocery shopping. Step 4, clean up the house and decorate it with balloons.",
+   questions:[
+     {q:"What is step 1?", a:"choose a date", hint:"(first step)"},
+     {q:"What do you send out in step 2?", a:"invitation cards", hint:"(item)"},
+     {q:"What do you decorate the house with?", a:"balloons", hint:"(decoration)"}
+   ],
+   missing:2}
+];
+
+const SP_MISSING_OPTIONS = ["el lugar (where)", "los personajes (who)", "cómo se sienten los personajes (feelings)"];
+
+const SP_CHOICE = [
+  {sentence:"The bank is (next to / far from) the bakery.", options:["next to","far from"], correct:0},
+  {sentence:"There is a park (between / behind) the school and the mall.", options:["between","behind"], correct:0},
+  {sentence:"The mall is (across from / next to) the apartment building, on the other side of the street.", options:["across from","next to"], correct:0},
+  {sentence:"Turn (left / straight) at the traffic light to get to the bakery, then keep going.", options:["left","straight"], correct:0},
+  {sentence:"(Pass / Stop) the parking lot and keep going down the avenue.", options:["Pass","Stop"], correct:0},
+  {sentence:"The pharmacy is (on the corner / in the middle) of Pike Street.", options:["on the corner","in the middle"], correct:0},
+  {sentence:"(Spread / Pour) the sauce on the biscuit, not the water.", options:["Spread","Pour"], correct:0},
+  {sentence:"(Bake / Boil) the pizza in the oven for 10 minutes.", options:["Bake","Boil"], correct:0},
+  {sentence:"(Chop / Freeze) the vegetables before you cook them.", options:["Chop","Freeze"], correct:0},
+  {sentence:"Add salt and pepper, then (stir / drain) the soup.", options:["stir","drain"], correct:0},
+  {sentence:"The school is (next to / across from) the drugstore, right beside it.", options:["next to","across from"], correct:0},
+  {sentence:"(Break / Peel) two eggs into the bowl before mixing.", options:["Break","Peel"], correct:0},
+];
+
+const SP_TRANSLATE = [
+  {es:"difícil de encontrar", en:"hard to find"},
+  {es:"seguir / continuar", en:"keep going"},
+  {es:"dar vuelta a la izquierda", en:"turn left"},
+  {es:"dar vuelta a la derecha", en:"turn right"},
+  {es:"al lado de", en:"next to"},
+  {es:"enfrente de (cruzando la calle)", en:"across from"},
+  {es:"entre", en:"between"},
+  {es:"semáforo", en:"traffic light"},
+  {es:"señal de alto", en:"stop sign"},
+  {es:"estacionamiento", en:"parking lot"},
+  {es:"panadería", en:"bakery"},
+  {es:"farmacia", en:"drugstore"},
+  {es:"hornear", en:"bake"},
+  {es:"hervir", en:"boil"},
+  {es:"cortar", en:"cut"},
+  {es:"mezclar", en:"mix"},
+  {es:"agregar", en:"add"},
+  {es:"revolver", en:"stir"},
+  {es:"picar", en:"chop"},
+  {es:"ingredientes", en:"ingredients"},
+  {es:"receta", en:"recipe"},
+  {es:"olla", en:"pot"},
+];
+
+const SP_SPEECH_FRAMES = [
+  [
+    {label:"INTRO", prompt:"Complete: 'This is how to get to ___.'", answer:"the school / the park / (any place)"},
+    {label:"BODY - Step 1", prompt:"Complete: 'Go straight up ___ Street.'", answer:"(a street name)"},
+    {label:"BODY - Step 2", prompt:"Complete: 'Turn ___ at the traffic light.'", answer:"left / right"},
+    {label:"ENDING", prompt:"Complete: 'The place is ___ the pharmacy.' (across from / next to)", answer:"across from / next to"},
+  ],
+  [
+    {label:"INTRO", prompt:"Complete: 'Let me tell you how to make ___.'", answer:"pizza / soup / (any food)"},
+    {label:"BODY - Step 1", prompt:"Complete: 'Cut all the ___.'", answer:"vegetables"},
+    {label:"BODY - Step 2", prompt:"Complete: '___ salt and pepper.'", answer:"Add"},
+    {label:"ENDING", prompt:"Complete: 'Now it's time to ___!'", answer:"eat / enjoy your meal"},
+  ]
+];
+
+let spSelectedVoice = null;
+function spLoadVoices(){
+  const voices = speechSynthesis.getVoices();
+  spSelectedVoice = voices.find(v=>v.lang==='en-US') || voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('en')) || null;
+}
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = spLoadVoices; spLoadVoices(); }
+function spSpeak(text, el){
+  if(!('speechSynthesis' in window)){ alert('Este navegador no soporta lectura en voz alta. Usa Google Chrome.'); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const rateSel = document.getElementById('spRate');
+  u.rate = rateSel ? parseFloat(rateSel.value) : 0.85;
+  u.lang = 'en-US';
+  if(spSelectedVoice) u.voice = spSelectedVoice;
+  if(el){ u.onstart=()=>el.classList.add('playing'); u.onend=()=>el.classList.remove('playing'); }
+  speechSynthesis.speak(u);
+}
+
+function openSp(){
+  currentSubjectId = null;
+  document.getElementById('homeView').style.display='none';
+  document.getElementById('subjectView').style.display='none';
+  document.getElementById('calView').style.display='none';
+  document.getElementById('reaView').style.display='none';
+  document.getElementById('spView').style.display='block';
+  document.getElementById('backBtn').style.display='inline-block';
+  document.getElementById('headerTitle').textContent='🗣️ Speaking — Cuarto Primaria';
+  document.getElementById('headerSubtitle').textContent='Unit 7 Giving Directions & Unit 8 Giving Instructions';
+  document.getElementById('appHeader').style.background='#5c6bc0';
+
+  document.querySelectorAll('#spTabs .tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===0);
+    b.style.background = i===0 ? '#5c6bc0' : '#fff';
+    b.style.borderColor = '#5c6bc0';
+    b.style.color = i===0 ? '#fff' : '#5c6bc0';
+  });
+  document.querySelectorAll('#spView .panel').forEach((p,i)=>p.classList.toggle('active', i===0));
+
+  buildSpVocab();
+  buildSpSentences();
+  spBuildQuizPool();
+  spShowQuizItem();
+  buildSpExam();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.querySelectorAll('#spTabs .tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('#spTabs .tab-btn').forEach(b=>{
+      const isActive = b===btn;
+      b.classList.toggle('active', isActive);
+      b.style.background = isActive ? '#5c6bc0' : '#fff';
+      b.style.borderColor = '#5c6bc0';
+      b.style.color = isActive ? '#fff' : '#5c6bc0';
+    });
+    document.querySelectorAll('#spView .panel').forEach(p=>p.classList.toggle('active', p.id===btn.dataset.stab));
+  });
+});
+
+function buildSpVocab(){
+  const grid = document.getElementById('spVocabGrid');
+  grid.innerHTML='';
+  SP_VOCAB.forEach(item=>{
+    const card = document.createElement('div');
+    card.className='vocab-card';
+    card.style.borderLeftColor = item.unit==='7' ? '#5c6bc0' : '#c9762b';
+    card.innerHTML = `<div class="vicon">${item.icon}</div>
+      <div class="ven">${item.en}</div>
+      <div class="ves">${item.es}</div>
+      <div class="vex">💬 "${item.ex}"<div class="vnote">👉 ${item.note}</div></div>`;
+    card.addEventListener('click',()=>spSpeak(item.en, card));
+    grid.appendChild(card);
+  });
+}
+
+function buildSpSentences(){
+  const list = document.getElementById('spSentList');
+  list.innerHTML='';
+  SP_SENTENCES.forEach(item=>{
+    const box = document.createElement('div');
+    box.className='sentence-item';
+    box.dataset.revealed='0';
+    box.innerHTML = `<div class="stxt"><span class="sesp" style="display:block;font-style:normal;color:var(--ink);font-size:15px;">🇬🇹 ${item.es}</span><span class="sen-en" style="display:none;color:#5c6bc0;font-weight:700;margin-top:4px;">🇬🇧 ${item.en}</span></div><button class="play-btn">👁</button>`;
+    const revealBtn = box.querySelector('.play-btn');
+    const enEl = box.querySelector('.sen-en');
+    const fn = ()=>{
+      if(box.dataset.revealed==='0'){
+        box.dataset.revealed='1';
+        enEl.style.display='block';
+        revealBtn.textContent='🔊';
+      }
+      spSpeak(item.en, box);
+    };
+    revealBtn.addEventListener('click', e=>{ e.stopPropagation(); fn(); });
+    box.addEventListener('click', fn);
+    list.appendChild(box);
+  });
+}
+
+let spQuizPool = [];
+let spQuizIndex = 0;
+function spBuildQuizPool(){
+  spQuizPool = shuffle(SP_VOCAB.map(v=>({...v})));
+  spQuizIndex = 0;
+}
+function spShowQuizItem(){
+  if(spQuizIndex >= spQuizPool.length){ spBuildQuizPool(); }
+  const item = spQuizPool[spQuizIndex];
+  document.getElementById('spQuizWord').textContent = '🇬🇹 ' + item.es;
+  document.getElementById('spQuizUnit').textContent = item.unit;
+  document.getElementById('spQuizRevealTxt').textContent = '';
+  document.getElementById('spQuizProgress').textContent = `Palabra ${spQuizIndex+1} de ${spQuizPool.length}`;
+  document.getElementById('spQuizReveal').disabled = false;
+  document.getElementById('spQuizPlay').disabled = true;
+}
+document.getElementById('spQuizReveal').addEventListener('click', ()=>{
+  const item = spQuizPool[spQuizIndex];
+  document.getElementById('spQuizRevealTxt').textContent = '🇬🇧 ' + item.en;
+  document.getElementById('spQuizPlay').disabled = false;
+  document.getElementById('spQuizReveal').disabled = true;
+  spSpeak(item.en);
+});
+document.getElementById('spQuizPlay').addEventListener('click', ()=>spSpeak(spQuizPool[spQuizIndex].en));
+document.getElementById('spQuizNext').addEventListener('click', ()=>{
+  spQuizIndex++;
+  spShowQuizItem();
+});
+
+let spScore = 0, spScorable = 0;
+function spUpdateScore(){
+  const answered = document.querySelectorAll('#spExamContainer .exam-q[data-answered="1"]').length;
+  if(answered >= spScorable){
+    const bar = document.getElementById('spExamScoreBar');
+    const pct = Math.round((spScore/spScorable)*100);
+    bar.textContent = `📊 Puntaje: ${spScore} / ${spScorable} (${pct}%)`;
+    bar.style.display = 'block';
+  }
+}
+
+let currentSpListeningSet = [];
+let currentSpChoiceSet = [];
+let currentSpFillSet = [];
+let currentSpPassage = null;
+let currentSpTranslateSet = [];
+
+function buildSpExam(){
+  const container = document.getElementById('spExamContainer');
+  container.innerHTML = '';
+  document.getElementById('spExamScoreBar').style.display = 'none';
+  document.getElementById('spExamKey').style.display = 'none';
+  spScore = 0;
+
+  const listeningSet = pickRandom(SP_VOCAB, 5);
+  const choiceSet = pickRandom(SP_CHOICE, 5);
+  const fillSet = pickRandom(SP_FILL, 4);
+  const passage = pickRandom(SP_PASSAGES, 1)[0];
+  const translateSet = pickRandom(SP_TRANSLATE, 6);
+  const speechFrame = pickRandom(SP_SPEECH_FRAMES, 1)[0];
+  spScorable = listeningSet.length + choiceSet.length + fillSet.length + passage.questions.length + 1 + translateSet.length;
+  currentSpListeningSet = listeningSet;
+  currentSpChoiceSet = choiceSet;
+  currentSpFillSet = fillSet;
+  currentSpPassage = passage;
+  currentSpTranslateSet = translateSet;
+
+  // PARTE 1: Listening
+  const part1 = document.createElement('div');
+  part1.className='exam-part';
+  part1.innerHTML = `<div class="exam-part-label">Parte 1 · Listening — escucha y elige</div>`;
+  listeningSet.forEach((item,idx)=>{
+    const distractors = shuffle(SP_VOCAB.filter(v=>v.es!==item.es)).slice(0,2).map(v=>v.es);
+    const opts = shuffle([item.es, ...distractors]);
+    const correctIdx = opts.indexOf(item.es);
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='mc';
+    qDiv.dataset.correctIdx=String(correctIdx);
+    qDiv.dataset.correctText=item.es;
+    qDiv.innerHTML = `<div class="exam-q-text"><button class="mini-play" data-audio="${item.ex.replace(/"/g,'&quot;')}">▶</button>${idx+1}. ¿Qué significa "${item.en}"?</div>
+      <div class="exam-options">${opts.map((o,i)=>`<button data-idx="${i}">${o}</button>`).join('')}</div>
+      <div class="exam-feedback"></div>`;
+    qDiv.querySelector('.mini-play').addEventListener('click', e=>spSpeak(e.currentTarget.dataset.audio));
+    qDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(qDiv.dataset.answered) return;
+        qDiv.dataset.answered='1';
+        const chosen = parseInt(btn.dataset.idx);
+        qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+          if(i===correctIdx) b.classList.add('correct');
+          else if(i===chosen) b.classList.add('incorrect');
+        });
+        const fb = qDiv.querySelector('.exam-feedback');
+        if(chosen===correctIdx){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+        else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+        spUpdateScore();
+      });
+    });
+    part1.appendChild(qDiv);
+  });
+  container.appendChild(part1);
+
+  // PARTE 2: Choose the correct words
+  const part1b = document.createElement('div');
+  part1b.className='exam-part';
+  part1b.innerHTML = `<div class="exam-part-label">Parte 2 · Choose the correct words</div>`;
+  choiceSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='choice';
+    qDiv.dataset.correctIdx=String(item.correct);
+    qDiv.dataset.correctText=item.options[item.correct];
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.sentence}</div>
+      <div class="exam-options">${item.options.map((o,i)=>`<button data-idx="${i}">${o}</button>`).join('')}</div>
+      <div class="exam-feedback"></div>`;
+    qDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(qDiv.dataset.answered) return;
+        qDiv.dataset.answered='1';
+        const chosen = parseInt(btn.dataset.idx);
+        qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+          if(i===item.correct) b.classList.add('correct');
+          else if(i===chosen) b.classList.add('incorrect');
+        });
+        const fb = qDiv.querySelector('.exam-feedback');
+        if(chosen===item.correct){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+        else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+        spUpdateScore();
+      });
+    });
+    part1b.appendChild(qDiv);
+  });
+  container.appendChild(part1b);
+
+  // PARTE 3: Complete the sentences
+  const part2 = document.createElement('div');
+  part2.className='exam-part';
+  part2.innerHTML = `<div class="exam-part-label">Parte 3 · Complete the sentences</div>`;
+  fillSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='fill';
+    qDiv.dataset.answer=item.answer;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.sentence}</div>
+      <input type="text" class="exam-fill-input" placeholder="Escribe tu respuesta">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      if(val===item.answer.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+item.answer; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      spUpdateScore();
+    });
+    part2.appendChild(qDiv);
+  });
+  container.appendChild(part2);
+
+  // PARTE 4: Read and answer + missing-info meta question
+  const part3 = document.createElement('div');
+  part3.className='exam-part';
+  part3.innerHTML = `<div class="exam-part-label">Parte 4 · Read and answer — ${passage.title}</div>
+    <div class="exam-passage"><button class="mini-play" id="spPassagePlay">▶ Escuchar el texto</button><br><br>${passage.text}</div>`;
+  part3.querySelector('#spPassagePlay').addEventListener('click', ()=>spSpeak(passage.text));
+
+  const missingShuffled = shuffle(SP_MISSING_OPTIONS.map((txt,i)=>({txt, isCorrect:i===passage.missing})));
+  const missingCorrectIdx = missingShuffled.findIndex(o=>o.isCorrect);
+  const metaDiv = document.createElement('div');
+  metaDiv.className='exam-q';
+  metaDiv.dataset.type='meta';
+  metaDiv.dataset.correctIdx=String(missingCorrectIdx);
+  metaDiv.dataset.correctText=missingShuffled[missingCorrectIdx].txt;
+  metaDiv.innerHTML = `<div class="exam-q-text">1. ¿Qué información falta en este texto?</div>
+    <div class="exam-options">${missingShuffled.map((o,i)=>`<button data-idx="${i}">${o.txt}</button>`).join('')}</div>
+    <div class="exam-feedback"></div>`;
+  metaDiv.querySelectorAll('.exam-options button').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(metaDiv.dataset.answered) return;
+      metaDiv.dataset.answered='1';
+      const chosen = parseInt(btn.dataset.idx);
+      metaDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{
+        if(i===missingCorrectIdx) b.classList.add('correct');
+        else if(i===chosen) b.classList.add('incorrect');
+      });
+      const fb = metaDiv.querySelector('.exam-feedback');
+      if(chosen===missingCorrectIdx){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+      else{ fb.textContent='✘ Incorrecto — la respuesta correcta está en verde.'; fb.className='exam-feedback bad'; }
+      spUpdateScore();
+    });
+  });
+  part3.appendChild(metaDiv);
+
+  passage.questions.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='open';
+    qDiv.dataset.answer=item.a;
+    qDiv.dataset.hint=item.hint;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+2}. ${item.q}</div>
+      <input type="text" class="exam-fill-input" style="width:280px" placeholder="Escribe una oración completa">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      const wordCount = val.split(/\s+/).filter(Boolean).length;
+      if(val.includes(item.a)){
+        if(wordCount<3){ fb.textContent='✔ Correcto, pero intenta responder con oración completa la próxima vez.'; fb.className='exam-feedback good'; }
+        else{ fb.textContent='✔ ¡Correcto! (oración completa)'; fb.className='exam-feedback good'; }
+        spScore++;
+      }
+      else{ fb.textContent=`✘ Idea esperada: "${item.a}" ${item.hint}. Responde con oración completa.`; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      spUpdateScore();
+    });
+    part3.appendChild(qDiv);
+  });
+  container.appendChild(part3);
+
+  // PARTE 5: Write the meaning in English
+  const part5 = document.createElement('div');
+  part5.className='exam-part';
+  part5.innerHTML = `<div class="exam-part-label">Parte 5 · Write the meaning in English</div>
+    <div class="exam-q-text" style="margin-bottom:6px;">Escribe el significado en inglés de las siguientes palabras/frases:</div>`;
+  translateSet.forEach((item,idx)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.dataset.type='translate';
+    qDiv.dataset.answer=item.en;
+    qDiv.innerHTML = `<div class="exam-q-text">${idx+1}. ${item.es}</div>
+      <input type="text" class="exam-fill-input" placeholder="Write in English">
+      <button class="exam-check-btn">Revisar</button>
+      <div class="exam-feedback"></div>`;
+    const input = qDiv.querySelector('input');
+    const chk = qDiv.querySelector('.exam-check-btn');
+    chk.addEventListener('click',()=>{
+      if(qDiv.dataset.answered) return;
+      qDiv.dataset.answered='1';
+      const val = input.value.trim().toLowerCase();
+      const fb = qDiv.querySelector('.exam-feedback');
+      if(val===item.en.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+item.en; fb.className='exam-feedback bad'; }
+      input.disabled=true; chk.disabled=true;
+      spUpdateScore();
+    });
+    part5.appendChild(qDiv);
+  });
+  container.appendChild(part5);
+
+  // PARTE 6: Speech frame (unscored, oral practice)
+  const part4 = document.createElement('div');
+  part4.className='exam-part';
+  part4.innerHTML = `<div class="exam-part-label">Parte 6 · Speech Frame (habla en voz alta con papá/mamá)</div>
+    <div class="exam-q-text" style="margin-bottom:10px;">No se califica solo — escribe tu idea y luego dila en voz alta completa, como si fuera tu discurso real.</div>`;
+  speechFrame.forEach((item)=>{
+    const qDiv = document.createElement('div');
+    qDiv.className='exam-q';
+    qDiv.innerHTML = `<div class="exam-q-text"><b>${item.label}:</b> ${item.prompt}</div>
+      <input type="text" class="exam-fill-input" style="width:280px" placeholder="Escribe tu respuesta">
+      <div class="exam-feedback" style="color:#7a7a72;font-weight:normal;">Ejemplo de respuesta: ${item.answer}</div>`;
+    part4.appendChild(qDiv);
+  });
+  container.appendChild(part4);
+}
+document.getElementById('spExamReset').addEventListener('click', buildSpExam);
+
+function checkAllSpExam(){
+  document.querySelectorAll('#spExamContainer .exam-q[data-type="mc"], #spExamContainer .exam-q[data-type="choice"], #spExamContainer .exam-q[data-type="meta"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const correctIdx = qDiv.dataset.correctIdx;
+      qDiv.querySelectorAll('.exam-options button').forEach((b,i)=>{ if(String(i)===correctIdx) b.classList.add('correct'); });
+      const fb = qDiv.querySelector('.exam-feedback');
+      fb.textContent='○ No la respondiste — la respuesta correcta está en verde.';
+      fb.className='exam-feedback bad';
+    }
+  });
+  document.querySelectorAll('#spExamContainer .exam-q[data-type="fill"], #spExamContainer .exam-q[data-type="translate"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const input = qDiv.querySelector('input');
+      const chk = qDiv.querySelector('.exam-check-btn');
+      const fb = qDiv.querySelector('.exam-feedback');
+      const val = input.value.trim().toLowerCase();
+      if(val===qDiv.dataset.answer.toLowerCase()){ fb.textContent='✔ ¡Correcto!'; fb.className='exam-feedback good'; spScore++; }
+      else{ fb.textContent='✘ Respuesta correcta: '+qDiv.dataset.answer; fb.className='exam-feedback bad'; }
+      input.disabled=true; if(chk) chk.disabled=true;
+    }
+  });
+  document.querySelectorAll('#spExamContainer .exam-q[data-type="open"]').forEach(qDiv=>{
+    if(!qDiv.dataset.answered){
+      qDiv.dataset.answered='1';
+      const input = qDiv.querySelector('input');
+      const chk = qDiv.querySelector('.exam-check-btn');
+      const fb = qDiv.querySelector('.exam-feedback');
+      const val = input.value.trim().toLowerCase();
+      const expected = qDiv.dataset.answer.toLowerCase();
+      if(val.includes(expected)){ fb.textContent='✔ ¡Correcto! (contiene la idea clave)'; fb.className='exam-feedback good'; spScore++; }
+      else{ fb.textContent=`✘ Idea clave esperada: "${qDiv.dataset.answer}" ${qDiv.dataset.hint||''}`; fb.className='exam-feedback bad'; }
+      input.disabled=true; if(chk) chk.disabled=true;
+    }
+  });
+
+  const bar = document.getElementById('spExamScoreBar');
+  const pct = spScorable ? Math.round((spScore/spScorable)*100) : 0;
+  bar.textContent = `📊 Puntaje final: ${spScore} / ${spScorable} (${pct}%)`;
+  bar.style.display = 'block';
+
+  const key = document.getElementById('spExamKey');
+  let khtml = '<h3 style="margin-top:0;color:#3f356a;">🔑 Respuestas correctas</h3>';
+  khtml += '<p><b>Parte 1 · Listening:</b><br>' + currentSpListeningSet.map((it,i)=>`${i+1}. ${it.es}`).join('<br>') + '</p>';
+  khtml += '<p><b>Parte 2 · Choose the correct words:</b><br>' + currentSpChoiceSet.map((it,i)=>`${i+1}. ${it.options[it.correct]}`).join('<br>') + '</p>';
+  khtml += '<p><b>Parte 3 · Complete the sentences:</b><br>' + currentSpFillSet.map((it,i)=>`${i+1}. ${it.answer}`).join('<br>') + '</p>';
+  if(currentSpPassage){
+    khtml += '<p><b>Parte 4 · Read and answer:</b><br>1. ' + SP_MISSING_OPTIONS[currentSpPassage.missing] + ' (información que falta)<br>' + currentSpPassage.questions.map((it,i)=>`${i+2}. ${it.a} ${it.hint}`).join('<br>') + '</p>';
+  }
+  khtml += '<p><b>Parte 5 · Write the meaning in English:</b><br>' + currentSpTranslateSet.map((it,i)=>`${i+1}. ${it.es} → ${it.en}`).join('<br>') + '</p>';
+  key.innerHTML = khtml;
+  key.style.display = 'block';
+  key.scrollIntoView({behavior:'smooth'});
+}
+document.getElementById('spExamCheckAll').addEventListener('click', checkAllSpExam);
+</script>
+</body>
+</html>
